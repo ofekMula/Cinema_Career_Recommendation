@@ -15,7 +15,7 @@ tables_list = [film_keys_list, genre_keys_list, director_keys_list, language_key
 csv_list = [film_keys_list, genre_keys_list, ["First_Name", "Last_Name"],
             language_keys_list, ["First_Name", "Last_Name"], ["First_Name", "Last_Name"]]
 dict_list = [dict() for i in range(len(tables_list))]
-csv_file_name_list = ["film.csv", "genre.csv", "director.csv", "language.csv", "writer.csv", "actors.csv"]
+csv_file_name_list = ["Film.csv", "Genre.csv", "Director.csv", "Language.csv", "Writer.csv", "Actors.csv"]
 
 
 def create_csv_file(file_name, field_names):
@@ -43,7 +43,7 @@ def init_csvs():
 
 def read_json():
     # Opening JSON file
-    f = open('tt10137486.json', encoding="utf-8")
+    f = open('../BreakJsonToAllTables/tt10137486.json', encoding="utf-8")
     # returns JSON object as
     # a dictionary
     data = json.load(f)

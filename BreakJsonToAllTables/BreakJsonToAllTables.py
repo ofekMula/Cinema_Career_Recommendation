@@ -3,11 +3,15 @@ import json
 import pandas as pd
 import os
 
-Tables = ["Actors", "Director", "Writer", "Production", "Genre", "Language", "Country"]
+Tables = ["Actors", "Director", "Writer", "Production", "Genre"]
 id_keys = ["Actor_id", "Director_id", "Writer_id", "Production_id", "Genre_id"]
 Tables_keys = ["id", "fullName"]
 
-film_table_key_list = ["Title", "Year", "Runtime", "imdbRating"]
+film_table_key_list = ["Title", "Year", "Runtime", "imdbRating", "Language", "Country"]
+
+ratings_df = pd.read_csv("ratings.csv")
+fieldnames_ratings = list(ratings_df.columns)
+movie_names_ratings = ratings_df[fieldnames_ratings[0]].to_list()
 
 
 def create_csv_file(file_name, field_names):
@@ -21,7 +25,10 @@ def create_csv_file(file_name, field_names):
 
 def init_csvs():
     # create csv for Film:
-    create_csv_file("Film.csv", ["id"] + film_table_key_list)
+    index = film_table_key_list.index("imdbRating")
+    new_key_list = ["id"] + film_table_key_list
+    new_key_list[index + 1] = "Rating"
+    create_csv_file("Film.csv", new_key_list)
 
     # create csv for other tables
     for table in Tables:
@@ -33,13 +40,19 @@ def init_csvs():
 
 
 def SaveNamesToALLTables(jsonName):
-    with open(jsonName, encoding="utf-8") as f:
+    with open(jsonName + ".json", encoding="utf-8") as f:
         movieData = json.load(f)
 
         if not (all([key in movieData for key in Tables]) and all([key in movieData for key in film_table_key_list])):
             # the json file does not contain all the data required
             print("Not inserted: ", jsonName)
             return  # hence, we do not add it to the DB and exit
+
+        if movieData["imdbRating"] == "N/A":  # no rating in the json file, so we take it from ratings.csv
+            if jsonName in movie_names_ratings:  # searching for the current movie in the csv
+                index = movie_names_ratings.index(jsonName)
+                rating = ratings_df.loc[index].at[fieldnames_ratings[1]]  # get the matching rating
+                movieData["imdbRating"] = str(rating)
 
         film_key = saveToFilmTable("Film", movieData)
 
@@ -138,7 +151,11 @@ def saveToFilmTable(table_name, movie_data):
             film_data_dict[fieldnames[0]] = movie_key
             for i in range(1, len(fieldnames)):
                 key = fieldnames[i]
-                value = movie_data[key]
+                if key == "Rating":
+                    new_key = "imdb" + key  # the key in the json is imdbRating
+                    value = movie_data[new_key]
+                else:
+                    value = movie_data[key]
                 if value == "N/A":
                     value = ""
                 film_data_dict[key] = value
@@ -150,7 +167,9 @@ def saveToFilmTable(table_name, movie_data):
     return None
 
 
-# jsonName = "tt0000035.json"
+# init_csvs()
+#
+# jsonName = "tt0000035"
 #
 # SaveNamesToALLTables(jsonName)
 
@@ -159,4 +178,6 @@ path = "C:\\Users\\DinPC\\PycharmProjects\\db_project\\BreakJsonToAllTables\\jso
 init_csvs()
 
 for json_file_name in os.listdir(path):
+    json_file_name = json_file_name[:len(json_file_name) - len(".json")]  # remove the .json suffix
     SaveNamesToALLTables(path + "\\" + json_file_name)
+

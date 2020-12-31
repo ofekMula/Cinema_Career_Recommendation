@@ -3,18 +3,28 @@ import json
 import pandas as pd
 import os
 
+# DB tables' names apart from Film
 Tables = ["Actors", "Director", "Writer", "Production", "Genre"]
+# foreign keys for intermediate tables
 id_keys = ["Actor_id", "Director_id", "Writer_id", "Production_id", "Genre_id"]
-Tables_keys = ["id", "fullName"]
+# attributes for main table apart from Film
+Tables_attributes = ["id", "fullName"]
 
-film_table_key_list = ["Title", "Year", "Runtime", "imdbRating", "Language", "Country"]
+# attributes for Film table
+film_table_attributes_list = ["Title", "Year", "Runtime", "imdbRating", "Language", "Country"]
 
+# accessing extra data (rating column) from ratings.csv
 ratings_df = pd.read_csv("ratings.csv")
 fieldnames_ratings = list(ratings_df.columns)
 movie_names_ratings = ratings_df[fieldnames_ratings[0]].to_list()
 
 
 def create_csv_file(file_name, field_names):
+    """
+    :param file_name: name of csv file
+    :param field_names: name of attributes (column names)
+    this function opens the file and writes the given column names
+    """
     # Open file in append mode
     with open(file_name, 'w', newline='', encoding="utf-8") as write_obj:
         # Create a writer object from csv module
@@ -24,15 +34,18 @@ def create_csv_file(file_name, field_names):
 
 
 def init_csvs():
+    """
+    this function creates all the csv files matching to the DB tables
+    """
     # create csv for Film:
-    index = film_table_key_list.index("imdbRating")
-    new_key_list = ["id"] + film_table_key_list
+    index = film_table_attributes_list.index("imdbRating")
+    new_key_list = ["id"] + film_table_attributes_list
     new_key_list[index + 1] = "Rating"
     create_csv_file("Film.csv", new_key_list)
 
     # create csv for other tables
     for table in Tables:
-        create_csv_file(table + ".csv", Tables_keys)
+        create_csv_file(table + ".csv", Tables_attributes)
 
     # create csv for intermediate tables:
     for i in range(len(Tables)):
@@ -40,10 +53,15 @@ def init_csvs():
 
 
 def SaveNamesToALLTables(jsonName):
+    """
+    :param jsonName: a json file name.
+    this function opens the jsonName.json file and load the data in the correct format
+    to a dictionary (movieData). we will use the dictionary to insert the data into the correct csv file.
+    """
     with open(jsonName + ".json", encoding="utf-8") as f:
         movieData = json.load(f)
 
-        if not (all([key in movieData for key in Tables]) and all([key in movieData for key in film_table_key_list])):
+        if not (all([key in movieData for key in Tables]) and all([key in movieData for key in film_table_attributes_list])):
             # the json file does not contain all the data required
             print("Not inserted: ", jsonName)
             return  # hence, we do not add it to the DB and exit
@@ -65,6 +83,11 @@ def SaveNamesToALLTables(jsonName):
 
 
 def saveToMainTable(TableName, movieData):
+    """
+    :param TableName: a main table name
+    :param movieData: a dictionary containing json file data
+    :return: this function returns a list of keys of records inserted into TableName.csv.
+    """
     csvName = TableName + ".csv"
     movieNames = movieData[TableName].split(",")
 
@@ -109,6 +132,13 @@ def saveToMainTable(TableName, movieData):
 
 
 def savetoLinkedTable(TableName, film_key, key):
+    """
+    :param TableName: a main table name
+    :param film_key: a key in Film.csv
+    :param key: a Key in TableName.csv
+     the data in the records key and film_key is from the same json file. this function inserts the tuple
+     (film_key, key) to the relevant intermediate csv file (Film_TableName.csv).
+    """
     if TableName == "Film_Genre":
         print("in Film_Genre")
     csvName = TableName + ".csv"

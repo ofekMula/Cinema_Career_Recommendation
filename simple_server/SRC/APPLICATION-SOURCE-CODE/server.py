@@ -4,18 +4,21 @@ import mysql.connector
 
 def findCountry(input):
     cur = mysql.cursor()
-    mysql_query = f"DESCRIBE Film"
-    cur.execute(mysql_query)
-    h = cur.fetchall()
-    headers = []
-    for col in h:
-        headers.append(col[0])
+    # mysql_query = f"DESCRIBE Film"
+    # cur.execute(mysql_query)
+    headers = [f"number of films in {input} is: " ]
     result = [headers]
     print(headers)
-    mysql_query = f"SELECT * FROM Film  WHERE Title LIKE '%{input}%' LIMIT 20 "
+    mysql_query = f"SELECT  sum(c.count)  as films_in_country FROM" \
+                  f"( SELECT Country,COUNT(*) as count FROM Film  WHERE Country LIKE '%kololo%'" \
+                  f"GROUP BY Country order by count desc) as c"
 
     cur.execute(mysql_query)
-    result.extend(cur.fetchall())
+    ft = cur.fetchall()
+    print(ft)
+    if ft[0][0] == None:
+        ft[0] = (0,)
+    result.extend(ft)
     return render_template('searchResults.html', data=result)
 
 def findbestProduction():
@@ -58,7 +61,8 @@ mysql = mysql.connector.connect(
 @app.route('/search')
 def search_return_html():
     input = request.args.get('query')
-    return findbestProduction()
+    #return findbestProduction()
+    return findCountry(input)
 
 
 @app.route('/')
@@ -66,6 +70,68 @@ def search_return_html():
 @app.route('/index')
 def index():
     return render_template('index.html')
+@app.route('/query.html')
+def query():
+    return render_template('query.html')
+def run_query_1(input):
+    cur = mysql.cursor()
+    headers = ["amount", "Production"]
+
+    result = [headers]
+    print(headers)
+    mysql_query = f"SELECT  count(f.id) as film_amount , p.fullName FROM Film as f, Production as p , Film_Production as fp where (f.id=fp.film_id) and  (fp.Production_id=p.id) and f.rating>=7 GROUP BY  p.fullName ORDER BY film_amount DESC LIMIT 20 "
+
+    cur.execute(mysql_query)
+    result.extend(cur.fetchall())
+    return render_template('searchResults.html', data=result)
+
+def run_query_2(input):
+    pass
+def run_query_3(input):
+    pass
+
+def run_query_4(input):
+    pass
+
+def run_query_5(input):
+    pass
+
+def run_query_6(input):
+    pass
+
+def run_query_7(input):
+    pass
+
+
+
+@app.route('/query1')
+def query_1():
+    input = request.args.get('query')
+    return run_query_1(input)
+@app.route('/query2')
+def query_2():
+    input = request.args.get('query')
+    return run_query_2(input)
+@app.route('/query3')
+def query_3():
+    input = request.args.get('query')
+    return run_query_3(input)
+@app.route('/query4')
+def query_4():
+    input = request.args.get('query')
+    return run_query_4(input)
+@app.route('/query5')
+def query_5():
+    input = request.args.get('query')
+    return run_query_5(input)
+@app.route('/query6')
+def query_6():
+    input = request.args.get('query')
+    return run_query_6(input)
+@app.route('/query7')
+def query_7():
+    input = request.args.get('query')
+    return run_query_7(input)
 
 
 if __name__ == '__main__':

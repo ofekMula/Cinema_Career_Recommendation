@@ -41,7 +41,7 @@ app = Flask(__name__)
 using mysql connector we can connect to our mysql server and use queries to fetch data from DB
 """
 
-#when we run server_temp.py locally
+#when we run server.py locally
 
 mysql = mysql.connector.connect(
   host="localhost",
@@ -50,6 +50,8 @@ mysql = mysql.connector.connect(
   database="DbMysql11",
   port="3305"
 )
+
+
 # when we run server on the nova: delta-tomcat-vm
 
 # mysql = mysql.connector.connect(
@@ -136,9 +138,4 @@ def query_7():
 
 if __name__ == '__main__':
     app.run(port="40707", debug=True)
-
-
-
-
-
 

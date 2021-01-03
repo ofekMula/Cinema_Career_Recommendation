@@ -61,10 +61,17 @@ def SaveNamesToALLTables(jsonName):
     with open(jsonName + ".json", encoding="utf-8") as f:
         movieData = json.load(f)
 
-        if not (all([key in movieData for key in Tables]) and all([key in movieData for key in film_table_attributes_list])):
+        if not (all([key in movieData for key in Tables]) and
+                all([key in movieData for key in film_table_attributes_list])):
             # the json file does not contain all the data required
             print("Not inserted: ", jsonName)
             return  # hence, we do not add it to the DB and exit
+
+#       # add more relevant movies
+#        year = int(movieData["Year"])
+#
+#        if year <= 2008:
+#            return
 
         if movieData["imdbRating"] == "N/A":  # no rating in the json file, so we take it from ratings.csv
             if jsonName in movie_names_ratings:  # searching for the current movie in the csv
@@ -197,17 +204,28 @@ def saveToFilmTable(table_name, movie_data):
     return None
 
 
-# init_csvs()
-#
-# jsonName = "tt0000035"
-#
-# SaveNamesToALLTables(jsonName)
+def run_over_jsons(path, to_init):
+    """
+    :param to_init: boolean telling if to init the tables or not.
+    :param path: of a directory containing only json files
+    This method runs over all jsons and inserts them to the tables.
+    """
+
+    if to_init:
+        init_csvs()
+
+    for json_file_name in os.listdir(path):
+        json_file_name = json_file_name[:len(json_file_name) - len(".json")]  # remove the .json suffix
+        SaveNamesToALLTables(path + "\\" + json_file_name)
+
 
 path = "C:\\Users\\DinPC\\PycharmProjects\\db_project\\BreakJsonToAllTables\\jsons"
 
-init_csvs()
+run_over_jsons(path, True)
 
-for json_file_name in os.listdir(path):
-    json_file_name = json_file_name[:len(json_file_name) - len(".json")]  # remove the .json suffix
-    SaveNamesToALLTables(path + "\\" + json_file_name)
+# path_new_movies = "C:\\Users\\DinPC\\PycharmProjects\\db_project\\BreakJsonToAllTables\\jsons3"
+# run_over_jsons(path_new_movies, False)
+
+
+
 

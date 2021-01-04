@@ -32,8 +32,6 @@ def push_csv_to_table(file_name, mysql_conn, cursor):
     for i, row in df.iterrows():
         if file_name == "Film":
             sql = f"INSERT IGNORE INTO {file_name} VALUES (%s,%s,%s,%s,%s,%s,%s)"
-        elif file_name == "ratings":
-            sql = f"INSERT IGNORE INTO {file_name} VALUES (%s,%s,%s)"
         else:
             sql = f"INSERT IGNORE INTO {file_name} VALUES (%s,%s)"
         cursor.execute(sql, tuple(row))
@@ -53,16 +51,16 @@ if __name__ == '__main__':
         port="3305"
     )
     cur = mysql.cursor()
+    push_csv_to_table("Film", mysql, cur)
     push_csv_to_table("Production",mysql,cur)
     push_csv_to_table("Actors", mysql, cur)
     push_csv_to_table("Director", mysql, cur)
-    push_csv_to_table("Film", mysql, cur)
     push_csv_to_table("Film_Director", mysql, cur)
-    push_csv_to_table("Film_Genre", mysql, cur)
-    push_csv_to_table("Film_Production", mysql, cur)
-    push_csv_to_table("Film_writer", mysql, cur)
     push_csv_to_table("Genre", mysql, cur)
     push_csv_to_table("Writer", mysql, cur)
-    # push_csv_to_table("Ratings", mysql, cur)
+    push_csv_to_table("Film_Genre", mysql, cur)
+    push_csv_to_table("Film_Production", mysql, cur)
+    push_csv_to_table("Film_Writer", mysql, cur)
+    push_csv_to_table("Film_Actors", mysql, cur)
 
     print("finished pushing all tables")

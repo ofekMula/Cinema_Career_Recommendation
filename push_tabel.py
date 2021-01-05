@@ -17,7 +17,9 @@ def push_csv_to_table(file_name, mysql_conn, cursor):
     :param cursor: cursor, matching to mysql_conn
     :return:
     """
-    df = pd.read_csv(f"./BreakJsonToAllTables/{file_name}" + ".csv")
+    #df = pd.read_csv(f"./BreakJsonToAllTables/{file_name}" + ".csv")
+    df = pd.read_csv(f"./BreakJsonToAllTables/{file_name}" + "1.csv")
+
     if file_name == "Film":
         df['Title'].fillna("No Title",inplace =True)
         df['Year'].fillna(-1,inplace=True)
@@ -55,9 +57,9 @@ if __name__ == '__main__':
     push_csv_to_table("Production",mysql,cur)
     push_csv_to_table("Actors", mysql, cur)
     push_csv_to_table("Director", mysql, cur)
-    push_csv_to_table("Film_Director", mysql, cur)
     push_csv_to_table("Genre", mysql, cur)
     push_csv_to_table("Writer", mysql, cur)
+    push_csv_to_table("Film_Director", mysql, cur)
     push_csv_to_table("Film_Genre", mysql, cur)
     push_csv_to_table("Film_Production", mysql, cur)
     push_csv_to_table("Film_Writer", mysql, cur)

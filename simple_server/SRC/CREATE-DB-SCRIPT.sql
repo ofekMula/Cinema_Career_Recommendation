@@ -8,7 +8,7 @@ CREATE TABLE Film (
 	Runtime     VARCHAR(50),
 	Rating      FLOAT,
 	Language    VARCHAR(100),
-	Country     VARCHAR(100),
+	Country     VARCHAR(200),
 
 PRIMARY KEY(id)
 ) ENGINE = INNODB ;

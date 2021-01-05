@@ -17,8 +17,8 @@ def push_csv_to_table(file_name, mysql_conn, cursor):
     :param cursor: cursor, matching to mysql_conn
     :return:
     """
-    #df = pd.read_csv(f"./BreakJsonToAllTables/{file_name}" + ".csv")
-    df = pd.read_csv(f"./BreakJsonToAllTables/{file_name}" + "1.csv")
+    df = pd.read_csv(f"./BreakJsonToAllTables/{file_name}" + ".csv")
+
 
     if file_name == "Film":
         df['Title'].fillna("No Title",inplace =True)

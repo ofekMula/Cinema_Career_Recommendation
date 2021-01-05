@@ -1,7 +1,7 @@
 
 -- Create main tables:
 
-CREATE TABLE Film IF NOT EXISTS NAME_DB (
+CREATE TABLE Film (
 	id          INT,
 	Title       VARCHAR(100) NOT NULL,
 	Year        INT,
@@ -13,35 +13,35 @@ CREATE TABLE Film IF NOT EXISTS NAME_DB (
 PRIMARY KEY(id)
 ) ENGINE = INNODB ;
 
-CREATE TABLE Actors IF NOT EXISTS NAME_DB (
+CREATE TABLE Actors (
 	id          INT,
 	fullName    VARCHAR(100) NOT NULL,
 
 PRIMARY KEY(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE Director IF NOT EXISTS NAME_DB (
+CREATE TABLE Director (
 	id          INT,
 	fullName    VARCHAR(100) NOT NULL,
 
 PRIMARY KEY(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE Genre IF NOT EXISTS NAME_DB (
+CREATE TABLE Genre (
 	id          INT,
 	fullName    VARCHAR(100) NOT NULL,
 
 PRIMARY KEY(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE Production IF NOT EXISTS NAME_DB (
+CREATE TABLE Production (
 	id          INT,
 	fullName    VARCHAR(100) NOT NULL,
 
 PRIMARY KEY(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE Writer IF NOT EXISTS NAME_DB (
+CREATE TABLE Writer (
 	id          INT,
 	fullName    VARCHAR(100) NOT NULL,
 
@@ -50,44 +50,44 @@ PRIMARY KEY(id)
 
 -- Create intermediate tables:
 
-CREATE TABLE Film_Actors IF NOT EXISTS NAME_DB (
+CREATE TABLE Film_Actors (
 	Film_id          INT,
 	Actor_id         INT,
 
-FOREIGN KEY(Film_id),
-FOREIGN KEY(Actor_id)
+FOREIGN KEY(Film_id) REFERENCES Film(id),
+FOREIGN KEY(Actor_id) REFERENCES Actors(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE Film_Director IF NOT EXISTS NAME_DB (
+CREATE TABLE Film_Director (
 	Film_id             INT,
 	Director_id         INT,
 
-FOREIGN KEY(Film_id),
-FOREIGN KEY(Director_id)
+FOREIGN KEY(Film_id) REFERENCES Film(id),
+FOREIGN KEY(Director_id) REFERENCES Director(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE Film_Genre IF NOT EXISTS NAME_DB (
+CREATE TABLE Film_Genre (
 	Film_id          INT,
 	Genre_id         INT,
 
-FOREIGN KEY(Film_id),
-FOREIGN KEY(Genre_id)
+FOREIGN KEY(Film_id) REFERENCES Film(id),
+FOREIGN KEY(Genre_id) REFERENCES Genre(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE Film_Production IF NOT EXISTS NAME_DB (
+CREATE TABLE Film_Production (
 	Film_id               INT,
 	Production_id         INT,
 
-FOREIGN KEY(Film_id),
-FOREIGN KEY(Production_id)
+FOREIGN KEY(Film_id) REFERENCES Film(id),
+FOREIGN KEY(Production_id) REFERENCES Production(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE Film_Writer IF NOT EXISTS NAME_DB (
+CREATE TABLE Film_Writer (
 	Film_id          INT,
 	Writer_id        INT,
 
-FOREIGN KEY(Film_id),
-FOREIGN KEY(Writer_id)
+FOREIGN KEY(Film_id) REFERENCES Film(id),
+FOREIGN KEY(Writer_id) REFERENCES Writer(id)
 ) ENGINE=INNODB;
 
 
@@ -102,6 +102,6 @@ CREATE INDEX writer_id_index ON Film_Writer(Writer_id) USING BTREE;
 CREATE INDEX director_id_index ON Film_Director(Director_id) USING BTREE;
 
 
---- create fulltext index
---- create index
---- define primary keys and foreign keys
+-- create fulltext index
+-- create index
+-- define primary keys and foreign keys

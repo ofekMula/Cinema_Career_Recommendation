@@ -33,27 +33,37 @@ def create_csv_file(file_name, field_names):
         csv_writer.writerow(field_names)
 
 
-def init_csvs():
+def init_csvs(film_file_name, csvs_names):
     """
+    :param csvs_names: names of files to build
+    :param film_file_name: name of the file related to film table
     this function creates all the csv files matching to the DB tables
     """
     # create csv for Film:
     index = film_table_attributes_list.index("imdbRating")
     new_key_list = ["id"] + film_table_attributes_list
     new_key_list[index + 1] = "Rating"
-    create_csv_file("Film.csv", new_key_list)
+    create_csv_file(film_file_name + ".csv", new_key_list)
 
     # create csv for other tables
-    for table in Tables:
-        create_csv_file(table + ".csv", Tables_attributes)
+    for file in csvs_names:
+        create_csv_file(file + ".csv", Tables_attributes)
 
     # create csv for intermediate tables:
-    for i in range(len(Tables)):
-        create_csv_file("Film_" + Tables[i] + ".csv", ["Film_id", id_keys[i]])
+    for i in range(len(csvs_names)):
+        create_csv_file("Film_" + csvs_names[i] + ".csv", ["Film_id", id_keys[i]])
 
 
-def SaveNamesToALLTables(jsonName):
+def SaveNamesToALLTables(jsonName, year_to_screen, is_over_year, film_file_name,
+                         csvs_names, curr_last_key, number_insertion):
     """
+    :param number_insertion: the sequence number of the current insertion
+    :param curr_last_key: a dictionary containing mapping between
+    csvs_names and film_file_name to the last key in the table.
+    :param csvs_names: names of files to build
+    :param film_file_name: name of the file related to film table
+    :param is_over_year: boolean telling us if to screen according to year.
+    :param year_to_screen: the year to screen.
     :param jsonName: a json file name.
     this function opens the jsonName.json file and load the data in the correct format
     to a dictionary (movieData). we will use the dictionary to insert the data into the correct csv file.
@@ -67,11 +77,12 @@ def SaveNamesToALLTables(jsonName):
             print("Not inserted: ", jsonName)
             return  # hence, we do not add it to the DB and exit
 
-#       # add more relevant movies
-#        year = int(movieData["Year"])
-#
-#        if year <= 2008:
-#            return
+        if is_over_year:
+            # add more relevant movies
+            year = int(movieData["Year"])
+
+            if year <= year_to_screen:
+                return
 
         if movieData["imdbRating"] == "N/A":  # no rating in the json file, so we take it from ratings.csv
             if jsonName in movie_names_ratings:  # searching for the current movie in the csv
@@ -79,24 +90,27 @@ def SaveNamesToALLTables(jsonName):
                 rating = ratings_df.loc[index].at[fieldnames_ratings[1]]  # get the matching rating
                 movieData["imdbRating"] = str(rating)
 
-        film_key = saveToFilmTable("Film", movieData)
+        film_key = saveToFilmTable(film_file_name, movieData, curr_last_key[film_file_name], number_insertion)
 
         if film_key is not None:
-            for tableName in Tables:
-                keyList = saveToMainTable(tableName, movieData)  # get key list
+            for tableName in csvs_names:
+                keyList = saveToMainTable(tableName, movieData, curr_last_key[tableName], number_insertion)  # get key list
                 for key in keyList:
                     linkTable = "Film_" + tableName
                     savetoLinkedTable(linkTable, film_key, key)
 
 
-def saveToMainTable(TableName, movieData):
+def saveToMainTable(TableName, movieData, last_key, number_insertion):
     """
+    :param number_insertion: the sequence number of the current insertion
+    :param last_key: the last key inserted
     :param TableName: a main table name
     :param movieData: a dictionary containing json file data
     :return: this function returns a list of keys of records inserted into TableName.csv.
     """
+    origin_table = TableName[:len(TableName) - len(number_insertion)]
     csvName = TableName + ".csv"
-    movieNames = movieData[TableName].split(",")
+    movieNames = movieData[origin_table].split(",")
 
     with open(csvName, 'a', newline='', encoding="utf-8") as outfile:
         df = pd.read_csv(TableName + ".csv")
@@ -107,7 +121,7 @@ def saveToMainTable(TableName, movieData):
         DBNames = df[fieldnames[1]].to_list()
         keyList = []
 
-        n = len(DBNames) + 1
+        n = len(DBNames) + 1 + last_key
 
         for i in range(len(movieNames)):
             if "(" in movieNames[i]:
@@ -118,22 +132,38 @@ def saveToMainTable(TableName, movieData):
 
         movieNames = list(dict.fromkeys(movieNames))  # remove duplicates created from removing the parentheses
 
+        if number_insertion == "":
+            number_insertion = "0"
+
         for name in movieNames:
 
             if name != "N/A":
-                if name not in DBNames:
+                in_previous = False
+                for k in range(int(number_insertion) + 1):
+                    if k == 0:
+                        csvName_previous = origin_table + ".csv"
+                    else:
+                        csvName_previous = origin_table + str(k) + ".csv"
+                    df_previous = pd.read_csv(csvName_previous)
+                    fieldnames_previous = list(df.columns)
+                    DBNames_previous = df_previous[fieldnames_previous[1]].to_list()
+                    # the names of the movies in the DB already
+                    if name in DBNames_previous:
+                        # we need to retrieve its id and add it to the list
+                        index = DBNames_previous.index(name)
+                        key = df_previous.loc[index].at[fieldnames[0]]
+                        print("key = ", key)
+                        # [fieldnames[0]][index + 1]  # plus 1 because of the row of the field_names
+                        keyList.append(key)
+                        in_previous = True
+                        break
+
+                if not in_previous:
                     key = str(n)
                     keyList.append(n)
                     print(TableName, ":     ", name, ", Key:", key)
                     n = n + 1
                     writer.writerow({fieldnames[0]: key, fieldnames[1]: name})
-                else:
-                    # we need to retrieve its id and add it to the list
-                    index = DBNames.index(name)
-                    key = df.loc[index].at[fieldnames[0]]
-                    print("key = ", key)
-                    # [fieldnames[0]][index + 1]  # plus 1 because of the row of the field_names
-                    keyList.append(key)
 
     return keyList
 
@@ -159,13 +189,15 @@ def savetoLinkedTable(TableName, film_key, key):
         writer.writerow({fieldnames[0]: film_key, fieldnames[1]: key})
 
 
-def saveToFilmTable(table_name, movie_data):
+def saveToFilmTable(table_name, movie_data, last_key, number_insertion):
     """
+    :param number_insertion: the sequence number of the current insertion
+    :param last_key: the last key inserted
     :param table_name: the name of the table to insert the record
     :param movie_data: the dictionary retrieved from json file
     :return: the key of the inserted movie a a string if inserted and None if not inserted.
     """
-    # film_keys_list = ["Title", "Year", "Runtime", "imdbRating", "Awards"]
+
     film_data_dict = dict()
     csvName = table_name + ".csv"
 
@@ -177,11 +209,26 @@ def saveToFilmTable(table_name, movie_data):
 
         DBNames = df[fieldnames[1]].to_list()  # the names of the movies in the DB already
 
-        n = len(DBNames) + 1
+        n = len(DBNames) + 1 + last_key
 
         movie_key = str(n)
 
         name_movie = movie_data["Title"]
+
+        if number_insertion == "":
+            number_insertion = "0"
+
+        for k in range(int(number_insertion) + 1):
+            if k == 0:
+                csvName_previous = "Film.csv"
+            else:
+                csvName_previous = "Film" + str(k) + ".csv"
+            df_previous = pd.read_csv(csvName_previous)
+            fieldnames_previous = list(df.columns)
+            DBNames_previous = df_previous[fieldnames_previous[1]].to_list()
+            # the names of the movies in the DB already
+            if name_movie in DBNames_previous:
+                return None
 
         if name_movie not in DBNames:  # insert only if not already in the DB
             # create the record for the movie
@@ -204,27 +251,63 @@ def saveToFilmTable(table_name, movie_data):
     return None
 
 
-def run_over_jsons(path, to_init):
+def run_over_jsons(path, to_init, film_file_name, csvs_names,
+                   year_to_screen, is_over_year, curr_last_key, number_insertion):
     """
+    :param number_insertion: the sequence number of the current insertion
+    :param curr_last_key: a dictionary containing mapping between
+    csvs_names and film_file_name to the last key in the table.
+    :param is_over_year: boolean telling us if to screen according to year.
+    :param year_to_screen: the year to screen.
+    :param csvs_names: names of files to build
+    :param film_file_name: name of the file related to film table
     :param to_init: boolean telling if to init the tables or not.
     :param path: of a directory containing only json files
     This method runs over all jsons and inserts them to the tables.
     """
 
     if to_init:
-        init_csvs()
+        init_csvs(film_file_name, csvs_names)
 
     for json_file_name in os.listdir(path):
         json_file_name = json_file_name[:len(json_file_name) - len(".json")]  # remove the .json suffix
-        SaveNamesToALLTables(path + "\\" + json_file_name)
+        SaveNamesToALLTables(path + "\\" + json_file_name, year_to_screen, is_over_year,
+                             film_file_name, csvs_names, curr_last_key, number_insertion)
 
 
-path = "C:\\Users\\DinPC\\PycharmProjects\\db_project\\BreakJsonToAllTables\\jsons"
-
-run_over_jsons(path, True)
-
+# curr_last_key_tables = dict()
+# for table in Tables:
+#     curr_last_key_tables[table] = 0
+# curr_last_key_tables["Film"] = 0
+#
+# path = "C:\\Users\\DinPC\\PycharmProjects\\db_project\\BreakJsonToAllTables\\jsons"
+#
+# run_over_jsons(path, True, "Film", Tables, None, False, curr_last_key_tables, number_insertion="")
+#
 # path_new_movies = "C:\\Users\\DinPC\\PycharmProjects\\db_project\\BreakJsonToAllTables\\jsons3"
-# run_over_jsons(path_new_movies, False)
+# run_over_jsons(path_new_movies, False, "Film", Tables, 2008, True, curr_last_key_tables, number_insertion="")
+
+path = "C:\\Users\\DinPC\\PycharmProjects\\db_project\\BreakJsonToAllTables\\jsons4"
+
+new_Tables = [table + "1" for table in Tables]
+
+curr_last_key_tables = dict()
+for i in range(len(Tables)):
+    csv_name = Tables[i] + ".csv"
+    df = pd.read_csv(csv_name)
+    fieldnames = list(df.columns)
+    DBNames = df[fieldnames[1]].to_list()  # the names of the movies in the DB already
+    curr_last_key_tables[new_Tables[i]] = len(DBNames)
+
+csv_name = "Film.csv"
+df = pd.read_csv(csv_name)
+fieldnames = list(df.columns)
+DBNames = df[fieldnames[1]].to_list()  # the names of the movies in the DB already
+curr_last_key_tables["Film1"] = len(DBNames)
+
+run_over_jsons(path, to_init=True, film_file_name="Film1", csvs_names=new_Tables,
+               year_to_screen=2004, is_over_year=True, curr_last_key=curr_last_key_tables, number_insertion="1")
+
 
 
 

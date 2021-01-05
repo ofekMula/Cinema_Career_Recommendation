@@ -1,9 +1,19 @@
 .u-section-1 {
   background: url(../static/images/54e9d2474c56a914f6da8c7dda79367d1d38d6ed5b586c48732f72d79e4ac051bb_1280.jpg) center/cover no-repeat  fixed;
+
+}
+.u-section-15 {
+  background: url(../static/images/query.jpg) center/cover no-repeat  fixed;
+
+}
+
+.disabled {
+    overflow-x: hidden; //horizontal
+    overflow-y: scroll; //vertical
 }
 
 .u-section-1 .u-sheet-1 {
-  min-height: 974px;
+  min-height: 200px;
 }
 
 .u-section-1 .u-text-1 {

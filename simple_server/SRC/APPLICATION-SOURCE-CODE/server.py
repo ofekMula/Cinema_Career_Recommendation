@@ -10,7 +10,7 @@ def findCountry(input):
     result = [headers]
     print(headers)
     mysql_query = f"SELECT  sum(c.count)  as films_in_country FROM" \
-                  f"( SELECT Country,COUNT(*) as count FROM Film  WHERE Country LIKE '%kololo%'" \
+                  f"( SELECT Country,COUNT(*) as count FROM Film  WHERE Country LIKE '%{input}%'" \
                   f"GROUP BY Country order by count desc) as c"
 
     cur.execute(mysql_query)
@@ -72,9 +72,22 @@ def search_return_html():
 @app.route('/index')
 def index():
     return render_template('index.html')
-@app.route('/query.html')
-def query():
-    return render_template('query.html')
+
+@app.route('/Film_queries.html')
+def films():
+    return render_template('Film_queries.html')
+
+@app.route('/Actor_queries.html')
+def actors():
+    return render_template('Actor_queries.html')
+
+@app.route('/Directors_queries.html')
+def directors():
+    return render_template('Directors_queries.html')
+@app.route('/Producer_queries.html')
+def producer():
+    return render_template('Producer_queries.html')
+
 def run_query_1(input):
     cur = mysql.cursor()
     headers = ["amount", "Production"]

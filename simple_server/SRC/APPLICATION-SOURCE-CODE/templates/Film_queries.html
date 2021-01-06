@@ -16,6 +16,21 @@
     <body class="u-body">
         <h2 class="u-text u-text-body-alt-color u-text-2"> Films query!!</h2>
         <form action="/query7" method="GET">
+            <h5 class="u-text u-text-body-alt-color u-text-2">1.Search for the highest rated movies from <br>the last years:</h5>
+            <label class="u-text u-text-body-alt-color u-text-2" for="years">Please select a year to begin with: </label>
+            <select name="query" id="years">
+                <option value="1960">1960</option>
+                <option value="1970">1970</option>
+                <option value="1980">1980</option>
+                <option value="1990">1990</option>
+                <option value="2000">2000</option>
+                <option value="2010">2010</option>
+                <option value="2020">2020</option>
+            </select><br>
+            <input type="submit" value="search">
+
+        </form><br>
+        <form action="/query8" method="GET">
             <span class="u-text u-text-body-alt-color u-text-2">this query does that:</span>
             <br>
             <span class="u-text u-text-body-alt-color u-text-2"> this line explains how to use the query</span><br>

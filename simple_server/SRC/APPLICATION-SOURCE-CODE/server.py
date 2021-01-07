@@ -132,7 +132,7 @@ LIMIT 20"
     return render_template('searchResults.html', data=result)
 
 
-# This query returns all the actors that worked with the required director.
+# This query returns 100 actors that worked with the required director.
 def run_query_5(input):
     cur = mysql.cursor()
 
@@ -171,7 +171,7 @@ def run_query_6(input):
 def run_query_7(input):
     cur = mysql.cursor()
 
-    mysql_query = f"CREATE VIEW IF NOT EXISTS Director_And_Num_Films AS\
+    mysql_query = f"CREATE VIEW IF NOT EXISTS Director_And_Num_Films_{input} AS\
                 SELECT d2.id, d2.fullName, COUNT(f.id) AS num_of_films\
                 FROM Director d2, Film f, Film_Director fd, Genre g, Film_Genre fg\
                 WHERE d2.id = fd.Director_id AND\
@@ -195,7 +195,7 @@ def run_query_7(input):
 def run_query_8(input):
     cur = mysql.cursor()
 
-    mysql_query = f"CREATE VIEW IF NOT EXISTS films_rating AS\
+    mysql_query = f"CREATE OR REPLACE VIEW films_rating AS\
                 SELECT f.id, f.Rating\
                 FROM Film f, Genre g, Film_Genre fg\
                 WHERE f.id = fg.Film_id and\
@@ -204,7 +204,7 @@ def run_query_8(input):
                 f.Rating > {input[1]}\
                 ORDER BY f.Rating DESC;\
                 SELECT w.fullName, COUNT(fr.id) AS num_best_films\
-                FROM Writer w, films_rating fr, Film_writer fw\
+                FROM Writer w, films_rating fr, Film_Writer fw\
                 WHERE w.id = fw.Writer_id and\
                 fr.id = fw.Film_id\
                 GROUP BY w.id, w.fullName\

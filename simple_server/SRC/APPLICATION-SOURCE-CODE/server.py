@@ -111,7 +111,7 @@ def run_query_4():
     mysql_query = f"SELECT  DISTINCT a.fullName as name,count(g.fullName) as count \
 FROM Actors as a, Genre as g,Film_Actors as fa, Film_Genre as fg \
 Where a.id =fa.Actor_id and g.id = fg.Genre_id and fa.Film_id = fg.Film_id \
-Group BY a.fullname \
+Group BY a.fullname,g.fullName \
 ORDER BY count DESC \
 LIMIT 20"
 
@@ -127,6 +127,9 @@ def run_query_6(input):
     pass
 
 def run_query_7(input):
+    pass
+
+def run_query_8(input):
     cur = mysql.cursor()
 
     mysql_query = f"SELECT f.year,f.Title,f.Rating from \
@@ -140,7 +143,6 @@ def run_query_7(input):
     result = cur.fetchall()
 
     return render_template('searchResults.html', data=result)
-
 
 
 @app.route('/query1')
@@ -170,6 +172,14 @@ def query_6():
 def query_7():
     input = request.args.get('query')
     return run_query_7(input)
+
+
+
+
+@app.route('/query8')
+def query_8():
+    input = request.args.get('query')
+    return run_query_8(input)
 
 
 if __name__ == '__main__':

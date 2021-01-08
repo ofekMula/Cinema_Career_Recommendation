@@ -88,6 +88,9 @@ def directors():
 def producer():
     return render_template('Producer_queries.html')
 
+@app.route('/Genre_queries.html')
+def genre():
+    return render_template('Genre_queries.html')
 def run_query_1(input):
     cur = mysql.cursor()
     headers = ["amount", "Production"]

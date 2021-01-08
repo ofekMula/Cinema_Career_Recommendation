@@ -147,6 +147,36 @@ def run_query_8(input):
 
     return render_template('searchResults.html', data=result)
 
+def run_query_9():
+    cur = mysql.cursor()
+
+    mysql_query = f"SELECT  g.fullName as genre_name ,AVG(f.Rating) as Avg_rating \
+                FROM Film as f, Genre as g , Film_Genre as fg \
+                WHERE (f.id =fg.film_id) and  (fg. film_id=g.id) \
+                GROUP BY  genre_name \
+                ORDER BY Avg_rating DESC \
+                LIMIT 10"
+
+    cur.execute(mysql_query)
+    result = cur.fetchall()
+
+    return render_template('searchResults.html', data=result)
+
+def run_query_10():
+    cur = mysql.cursor()
+
+    mysql_query = f"SELECT  g.fullName, count(f.id) as film_amount\
+                FROM Film as f, Genre as g , Film_Genre as fg \
+                where (f.id=fg.film_id) and  (fg.Genre_id=g.id) and f.rating>=8 \
+                GROUP BY  g.fullName \
+                ORDER BY film_amount DESC"
+
+
+    cur.execute(mysql_query)
+    result = cur.fetchall()
+
+    return render_template('searchResults.html', data=result)
+
 
 @app.route('/query1')
 def query_1():
@@ -176,13 +206,18 @@ def query_7():
     input = request.args.get('query')
     return run_query_7(input)
 
-
-
-
 @app.route('/query8')
 def query_8():
     input = request.args.get('query')
     return run_query_8(input)
+
+@app.route('/query9')
+def query_9():
+    return run_query_9()
+
+@app.route('/query10')
+def query_10():
+    return run_query_10()
 
 
 if __name__ == '__main__':

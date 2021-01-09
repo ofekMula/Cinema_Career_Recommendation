@@ -118,7 +118,7 @@ def run_query_3(input):
 
     return render_template('searchResults.html', data=result)
 
-def run_query_4():
+def run_query_4(input):
     cur = mysql.cursor()
     headers = ["amount", "number of genres"]
     result = [headers]
@@ -253,18 +253,20 @@ def run_query_10():
 
     return render_template('searchResults.html', data=result)
 
+
 def run_query_11(input):
     cur = mysql.cursor()
 
+    headers = ["year","Title", "rating"]
+    result = [headers]
     mysql_query = f"SELECT f.year,f.Title,f.Rating from \
                     Film as f,(SELECT distinct f.Year  ,MAX(f.Rating) as max_rating\
                     FROM Film as f WHERE f.Year>={input} AND f.Year<=2020 \
                     GROUP BY f.year) as max_per_year \
-                    WHERE f.Year =max_per_year.Year and f.Rating = max_per_year.max_rating \
-                    Order by f.Year "
+                    WHERE f.Year =max_per_year.Year and f.Rating = max_per_year.max_rating"
 
     cur.execute(mysql_query)
-    result = cur.fetchall()
+    result.extend(cur.fetchall())
 
     return render_template('searchResults.html', data=result)
 

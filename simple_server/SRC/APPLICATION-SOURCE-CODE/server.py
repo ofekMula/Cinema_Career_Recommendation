@@ -58,6 +58,12 @@ def genre():
 @app.route('/Writer_queries.html')
 def writer():
     return render_template('Writer_queries.html')
+
+@app.route('/about_us.html')
+def about_us():
+    return render_template('about_us.html')
+
+
 ### Run querys functions ###
 
 def run_query_0(input):

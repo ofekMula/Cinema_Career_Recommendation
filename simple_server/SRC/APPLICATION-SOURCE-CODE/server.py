@@ -273,6 +273,12 @@ def query_9():
 def query_10():
     return run_query_10()
 
+@app.route('/backToCover')
+def back():
+    return render_template('index.html')
+
+
+
 
 if __name__ == '__main__':
     app.run(port="8888", debug=True)

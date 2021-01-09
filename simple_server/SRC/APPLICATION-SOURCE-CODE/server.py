@@ -55,7 +55,9 @@ def producer():
 def genre():
     return render_template('Genre_queries.html')
 
-
+@app.route('/Writer_queries.html')
+def writer():
+    return render_template('Writer_queries.html')
 ### Run querys functions ###
 
 def run_query_0(input):

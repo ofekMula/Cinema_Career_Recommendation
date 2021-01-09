@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
 import mysql.connector
-
-# import mySqlQueries
+#import mySqlQueries
 
 
 app = Flask(__name__)
@@ -36,22 +35,17 @@ mysql = mysql.connector.connect(
 def index():
     return render_template('index.html')
 
-
 @app.route('/Film_queries.html')
 def films():
     return render_template('Film_queries.html')
-
 
 @app.route('/Actor_queries.html')
 def actors():
     return render_template('Actor_queries.html')
 
-
 @app.route('/Directors_queries.html')
 def directors():
     return render_template('Directors_queries.html')
-
-
 @app.route('/Producer_queries.html')
 def producer():
     return render_template('Producer_queries.html')
@@ -103,7 +97,6 @@ def run_query_1(input):
     result.extend(cur.fetchall())
     return render_template('searchResults.html', data=result)
 
-
 def run_query_2(input):
     pass
 
@@ -125,8 +118,7 @@ def run_query_3(input):
 
     return render_template('searchResults.html', data=result)
 
-
-def run_query_4(input):
+def run_query_4():
     cur = mysql.cursor()
     headers = ["amount", "number of genres"]
     result = [headers]
@@ -144,27 +136,86 @@ LIMIT 20"
     return render_template('searchResults.html', data=result)
 
 
+# This query returns 100 actors that worked with the required director.
 def run_query_5(input):
-    pass
+    cur = mysql.cursor()
+
+    mysql_query = f"SELECT a.fullName as Actors\
+                  FROM Director d, Actors a, Film f, Film_Director fd, Film_Actors fa\
+                  WHERE MATCH(d.fullName) AGAINST({input}) and\
+                  f.id = fa.Film_id and\
+                  f.id = fd.Film_id and\
+                  d.id = fd.Director_id and\
+                  a.id = fa.Actor_id\
+                  LIMIT 100;"
+
+    cur.execute(mysql_query)
+    result = cur.fetchall()
+
+    return render_template('searchResults.html', data=result)
+
 
 
 def run_query_6(input):
-    pass
+    cur = mysql.cursor()
+
+    mysql_query = f"SELECT f.Title, f.Rating\
+                  FROM Director d, Film f, Film_Director fd\
+                  WHERE f.id = fd.Film_id AND\
+	              d.id = fd.Director_id AND\
+                  MATCH(d.fullName) AGAINST({input})\
+                  ORDER BY f.Rating DESC\
+                  LIMIT 100;"
+
+    cur.execute(mysql_query)
+    result = cur.fetchall()
+
+    return render_template('searchResults.html', data=result)
+
 
 
 def run_query_7(input):
-    pass
+    cur = mysql.cursor()
+
+    mysql_query = f"CREATE VIEW IF NOT EXISTS Director_And_Num_Films_{input} AS\
+                SELECT d2.id, d2.fullName, COUNT(f.id) AS num_of_films\
+                FROM Director d2, Film f, Film_Director fd, Genre g, Film_Genre fg\
+                WHERE d2.id = fd.Director_id AND\
+	            f.id = fd.Film_id AND\
+	            f.id = fg.Film_id AND\
+	            g.id = fg.Genre_id AND\
+	            g.fullName = {input}\
+                GROUP BY d2.id, d2.fullName;\
+                SELECT Director_And_Num_Films.fullName\
+                FROM Director_And_Num_Films\
+                WHERE Director_And_Num_Films.num_of_films > 10\
+                ORDER BY Director_And_Num_Films.num_of_films DESC\
+                LIMIT 100;"
+
+    cur.execute(mysql_query)
+    result = cur.fetchall()
+
+    return render_template('searchResults.html', data=result)
 
 
 def run_query_8(input):
     cur = mysql.cursor()
 
-    mysql_query = f"SELECT f.year,f.Title,f.Rating from \
-                    Film as f,(SELECT distinct f.Year  ,MAX(f.Rating) as max_rating\
-                    FROM Film as f WHERE f.Year>={input} AND f.Year<=2020 \
-                    GROUP BY f.year) as max_per_year \
-                    WHERE f.Year =max_per_year.Year and f.Rating = max_per_year.max_rating \
-                    Order by f.Year "
+    mysql_query = f"CREATE OR REPLACE VIEW films_rating AS\
+                SELECT f.id, f.Rating\
+                FROM Film f, Genre g, Film_Genre fg\
+                WHERE f.id = fg.Film_id and\
+                fg.Genre_id = g.id and\
+                g.fullName = {input[0]} and\
+                f.Rating > {input[1]}\
+                ORDER BY f.Rating DESC;\
+                SELECT w.fullName, COUNT(fr.id) AS num_best_films\
+                FROM Writer w, films_rating fr, Film_Writer fw\
+                WHERE w.id = fw.Writer_id and\
+                fr.id = fw.Film_id\
+                GROUP BY w.id, w.fullName\
+                ORDER BY num_best_films DESC\
+                LIMIT 100;"
 
     cur.execute(mysql_query)
     result = cur.fetchall()
@@ -196,6 +247,21 @@ def run_query_10():
                 where (f.id=fg.film_id) and  (fg.Genre_id=g.id) and f.rating>=8 \
                 GROUP BY  g.fullName \
                 ORDER BY film_amount DESC"
+
+    cur.execute(mysql_query)
+    result = cur.fetchall()
+
+    return render_template('searchResults.html', data=result)
+
+def run_query_11(input):
+    cur = mysql.cursor()
+
+    mysql_query = f"SELECT f.year,f.Title,f.Rating from \
+                    Film as f,(SELECT distinct f.Year  ,MAX(f.Rating) as max_rating\
+                    FROM Film as f WHERE f.Year>={input} AND f.Year<=2020 \
+                    GROUP BY f.year) as max_per_year \
+                    WHERE f.Year =max_per_year.Year and f.Rating = max_per_year.max_rating \
+                    Order by f.Year "
 
     cur.execute(mysql_query)
     result = cur.fetchall()
@@ -257,11 +323,12 @@ def query_7():
     input = request.args.get('query')
     return run_query_7(input)
 
-
 @app.route('/query8')
 def query_8():
     input = request.args.get('query')
-    return run_query_8(input)
+    input_arr = input.split(',')
+    input_arr = [s.strip() for s in input_arr]
+    return run_query_8(input_arr)
 
 
 @app.route('/query9')
@@ -273,6 +340,11 @@ def query_9():
 def query_10():
     return run_query_10()
 
+@app.route('/query11')
+def query_11():
+    input = request.args.get('query')
+    return run_query_11(input)
+
 @app.route('/backToCover')
 def back():
     return render_template('index.html')
@@ -283,3 +355,4 @@ def back():
 if __name__ == '__main__':
     app.run(port="8888", debug=True)
     # app.run(port="40707", debug=True,host='delta-tomcat- - when running on delta tomcat server.
+

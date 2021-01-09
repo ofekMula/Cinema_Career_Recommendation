@@ -62,6 +62,7 @@ def genre():
  ### Run querys functions ###
 
 def run_query_0(input):
+    ## find the number of films by the given input  cointry name
     cur = mysql.cursor()
     # mysql_query = f"DESCRIBE Film"
     # cur.execute(mysql_query)

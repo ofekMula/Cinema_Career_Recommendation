@@ -2,36 +2,6 @@ from flask import Flask, render_template, request
 import mysql.connector
 #import mySqlQueries
 
-def findCountry(input):
-    cur = mysql.cursor()
-    # mysql_query = f"DESCRIBE Film"
-    # cur.execute(mysql_query)
-    headers = [f"number of films in {input} is: " ]
-    result = [headers]
-    print(headers)
-    mysql_query = f"SELECT  sum(c.count)  as films_in_country FROM" \
-                  f"( SELECT Country,COUNT(*) as count FROM Film  WHERE Country LIKE '%{input}%'" \
-                  f"GROUP BY Country order by count desc) as c"
-
-    cur.execute(mysql_query)
-    ft = cur.fetchall()
-    print(ft)
-    if ft[0][0] == None:
-        ft[0] = (0,)
-    result.extend(ft)
-    return render_template('searchResults.html', data=result)
-
-def findbestProduction():
-    cur = mysql.cursor()
-    headers = ["amount","Production"]
-
-    result = [headers]
-    print(headers)
-    mysql_query = f"SELECT  count(f.id) as film_amount , p.fullName FROM Film as f, Production as p , Film_Production as fp where (f.id=fp.film_id) and  (fp.Production_id=p.id) and f.rating>=7 GROUP BY  p.fullName ORDER BY film_amount DESC LIMIT 20 "
-
-    cur.execute(mysql_query)
-    result.extend(cur.fetchall())
-    return render_template('searchResults.html', data=result)
 
 
 
@@ -60,13 +30,8 @@ mysql = mysql.connector.connect(
 #   password="DbMysql11",
 #   database="DbMysql11",
 # )
-@app.route('/search')
-def search_return_html():
-    input = request.args.get('query')
-    #return findbestProduction()
-    return findCountry(input)
 
-
+#### PAGES ###
 @app.route('/')
 
 @app.route('/index')
@@ -91,13 +56,44 @@ def producer():
 @app.route('/Genre_queries.html')
 def genre():
     return render_template('Genre_queries.html')
-def run_query_1(input):
+
+
+
+ ### Run querys functions ###
+
+def run_query_0(input):
     cur = mysql.cursor()
-    headers = ["amount", "Production"]
+    # mysql_query = f"DESCRIBE Film"
+    # cur.execute(mysql_query)
+    input = str(input)
+    input = input.lower()
+    print(input)
+    headers = [f"number of films in {input} is: "]
+    result = [headers]
+    print(headers)
+    mysql_query = f"SELECT  sum(c.count)  as films_in_country FROM" \
+                  f"( SELECT Country,COUNT(*) as count FROM Film  WHERE Country LIKE '%{input}%'" \
+                  f"GROUP BY Country order by count desc) as c"
+
+    cur.execute(mysql_query)
+    ft = cur.fetchall()
+    print(ft)
+    if ft[0][0] == None:
+        ft[0] = (0,)
+    result.extend(ft)
+    return render_template('searchResults.html', data=result)
+
+
+def run_query_1(input):
+ ## find the 20 biggest  producer/genre, by the amount of films with rank above 7
+    cur = mysql.cursor()
+    headers = ["amount", input]
 
     result = [headers]
     print(headers)
-    mysql_query = f"SELECT  count(f.id) as film_amount , p.fullName FROM Film as f, Production as p , Film_Production as fp where (f.id=fp.film_id) and  (fp.Production_id=p.id) and f.rating>=7 GROUP BY  p.fullName ORDER BY film_amount DESC LIMIT 20 "
+    mysql_query = f"SELECT  count(f.id) as film_amount , p.fullName FROM Film as f, {input} as p ," \
+                  f" Film_{input} as fp where (f.id=fp.film_id) and  (fp.{input}_id=p.id) and f.rating>=7 " \
+                  f"GROUP BY  p.fullName ORDER BY film_amount DESC LIMIT 20 "
 
     cur.execute(mysql_query)
     result.extend(cur.fetchall())
@@ -178,14 +174,24 @@ def run_query_10():
     return render_template('searchResults.html', data=result)
 
 
+ ### call querys functions ###
+
+@app.route('/query0')
+def search_return_html():
+    input = request.args.get('query')
+
+    return run_query_0(input)
+
+
 @app.route('/query1')
 def query_1():
     input = request.args.get('query')
-    return run_query_1(input)
+    return run_query_1("Production")
+
 @app.route('/query2')
 def query_2():
     input = request.args.get('query')
-    return run_query_2(input)
+    return run_query_1("Genre")
 @app.route('/query3')
 def query_3():
     input = request.args.get('query')

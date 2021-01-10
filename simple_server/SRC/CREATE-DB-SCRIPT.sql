@@ -13,7 +13,7 @@ CREATE TABLE Film (
 PRIMARY KEY(id)
 ) ENGINE = INNODB ;
 
-CREATE TABLE Actors (
+CREATE TABLE Actor (
 	id          INT,
 	fullName    VARCHAR(100) NOT NULL,
 
@@ -50,12 +50,12 @@ PRIMARY KEY(id)
 
 -- Create intermediate tables:
 
-CREATE TABLE Film_Actors (
+CREATE TABLE Film_Actor (
 	Film_id          INT,
 	Actor_id         INT,
 
 FOREIGN KEY(Film_id) REFERENCES Film(id),
-FOREIGN KEY(Actor_id) REFERENCES Actors(id)
+FOREIGN KEY(Actor_id) REFERENCES Actor(id)
 ) ENGINE=INNODB;
 
 CREATE TABLE Film_Director (
@@ -95,7 +95,7 @@ FOREIGN KEY(Writer_id) REFERENCES Writer(id)
 
 CREATE FULLTEXT INDEX director_name_index ON Director(fullName);
 
-CREATE INDEX actor_id_index ON Film_Actors(Actor_id) USING BTREE;
+CREATE INDEX actor_id_index ON Film_Actor(Actor_id) USING BTREE;
 
 CREATE INDEX writer_id_index ON Film_Writer(Writer_id) USING BTREE;
 

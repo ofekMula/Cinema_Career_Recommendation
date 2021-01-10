@@ -12,6 +12,22 @@
               background-size: cover;
             }
         </style>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <link rel="stylesheet" href="/resources/demos/style.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script>
+            $( function allDirectors() {
+                var availableTags = [];
+                $( "#tags" ).autocomplete({
+                  source: availableTags
+                });
+        } );
+        </script>
+
     </head>
 
     <body class="u-body">
@@ -57,12 +73,13 @@
             <span class="u-text u-text-body-alt-color u-text-2">Get top 100 films (by movie rating) for a given director:</span>
             <br>
             <span class="u-text u-text-body-alt-color u-text-2"> Insert a director name:</span><br>
-            <input type="text" name="query" required>
+
+            <div class="ui-widget">
+                <input id="tags" name="query" required>
+            </div>
+
             <input type="submit" value="search">
         </form><br>
-
-
-
 
 
     </body>

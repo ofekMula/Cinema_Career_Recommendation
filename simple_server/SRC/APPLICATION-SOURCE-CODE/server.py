@@ -20,6 +20,8 @@ mysql = mysql.connector.connect(
 )
 
 
+
+
 # when we run server on the nova: delta-tomcat-vm
 
 # mysql = mysql.connector.connect(
@@ -136,7 +138,7 @@ FROM {input} as a, Genre as g,Film_{input} as fa, Film_Genre as fg \
 Where a.id =fa.{input}_id and g.id = fg.Genre_id and fa.Film_id = fg.Film_id \
 Group BY a.fullname,g.fullName \
 ORDER BY count DESC \
-LIMIT 20"
+LIMIT 20;"
 
     cur.execute(mysql_query)
     result.extend(cur.fetchall())
@@ -148,16 +150,16 @@ LIMIT 20"
 def run_query_5(input):
     cur = mysql.cursor()
 
-    mysql_query = f"SELECT a.fullName as Actors\
-                  FROM Director d, Actors a, Film f, Film_Director fd, Film_Actors fa\
-                  WHERE MATCH(d.fullName) AGAINST({input}) and\
-                  f.id = fa.Film_id and\
-                  f.id = fd.Film_id and\
-                  d.id = fd.Director_id and\
-                  a.id = fa.Actor_id\
-                  LIMIT 100;"
+    mysql_query = """SELECT d.fullName, a.fullName as Actors
+                  FROM Director d, Actor a, Film f, Film_Director fd, Film_Actor fa
+                  WHERE MATCH(d.fullName) AGAINST("%s") and
+                  f.id = fa.Film_id and
+                  f.id = fd.Film_id and
+                  d.id = fd.Director_id and
+                  a.id = fa.Actor_id
+                  LIMIT 100;"""
 
-    cur.execute(mysql_query)
+    cur.execute(mysql_query, (input,))
     result = cur.fetchall()
 
     return render_template('searchResults.html', data=result)
@@ -167,15 +169,15 @@ def run_query_5(input):
 def run_query_6(input):
     cur = mysql.cursor()
 
-    mysql_query = f"SELECT f.Title, f.Rating\
-                  FROM Director d, Film f, Film_Director fd\
-                  WHERE f.id = fd.Film_id AND\
-	              d.id = fd.Director_id AND\
-                  MATCH(d.fullName) AGAINST({input})\
-                  ORDER BY f.Rating DESC\
-                  LIMIT 100;"
+    mysql_query = """SELECT d.fullName, f.Title, f.Rating
+                  FROM Director d, Film f, Film_Director fd
+                  WHERE f.id = fd.Film_id AND
+	              d.id = fd.Director_id AND
+                  MATCH(d.fullName) AGAINST("%s")
+                  ORDER BY f.Rating DESC
+                  LIMIT 100;"""
 
-    cur.execute(mysql_query)
+    cur.execute(mysql_query, (input,))
     result = cur.fetchall()
 
     return render_template('searchResults.html', data=result)
@@ -200,7 +202,7 @@ def run_query_7(input):
                 ORDER BY Director_And_Num_Films.num_of_films DESC\
                 LIMIT 100;"
 
-    cur.execute(mysql_query)
+    cur.execute(mysql_query, multi=True)
     result = cur.fetchall()
 
     return render_template('searchResults.html', data=result)
@@ -209,21 +211,26 @@ def run_query_7(input):
 def run_query_8(input):
     cur = mysql.cursor()
 
-    mysql_query = f"CREATE OR REPLACE VIEW films_rating AS\
-                SELECT f.id, f.Rating\
-                FROM Film f, Genre g, Film_Genre fg\
-                WHERE f.id = fg.Film_id and\
-                fg.Genre_id = g.id and\
-                g.fullName = {input[0]} and\
-                f.Rating > {input[1]}\
-                ORDER BY f.Rating DESC;\
-                SELECT w.fullName, COUNT(fr.id) AS num_best_films\
-                FROM Writer w, films_rating fr, Film_Writer fw\
-                WHERE w.id = fw.Writer_id and\
-                fr.id = fw.Film_id\
-                GROUP BY w.id, w.fullName\
-                ORDER BY num_best_films DESC\
-                LIMIT 100;"
+    view_query = """
+                DROP VIEW IF EXISTS [films_rating];
+                CREATE VIEW [films_rating] AS
+                SELECT f.id, f.Rating
+                FROM Film f, Genre g, Film_Genre fg
+                WHERE f.id = fg.Film_id and
+                fg.Genre_id = g.id and
+                g.fullName = "Drama" and
+                f.Rating > 0
+                ORDER BY f.Rating DESC;"""
+
+    cur.execute(view_query, multi=True)
+
+    mysql_query = """SELECT w.fullName, COUNT(fr.id) AS num_best_films
+                FROM Writer w, films_rating fr, Film_Writer fw
+                WHERE w.id = fw.Writer_id and
+                fr.id = fw.Film_id
+                GROUP BY w.id, w.fullName
+                ORDER BY num_best_films DESC
+                LIMIT 100;"""
 
     cur.execute(mysql_query)
     result = cur.fetchall()
@@ -319,23 +326,31 @@ def query_4_dir():
 @app.route('/query5')
 def query_5():
     input = request.args.get('query')
+    if input is None:
+        return render_template('searchResults.html', data=[])
     return run_query_5(input)
 
 
 @app.route('/query6')
 def query_6():
     input = request.args.get('query')
+    if input is None:
+        return render_template('searchResults.html', data=[])
     return run_query_6(input)
 
 
 @app.route('/query7')
 def query_7():
     input = request.args.get('query')
+    if input is None:
+        return render_template('searchResults.html', data=[])
     return run_query_7(input)
 
 @app.route('/query8')
 def query_8():
     input = request.args.get('query')
+    if input is None:
+        return render_template('searchResults.html', data=[])
     input_arr = input.split(',')
     input_arr = [s.strip() for s in input_arr]
     return run_query_8(input_arr)

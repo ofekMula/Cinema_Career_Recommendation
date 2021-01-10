@@ -15,22 +15,30 @@
 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-        <link rel="stylesheet" href="/resources/demos/style.css">
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-        <script>
-            $( function allDirectors() {
-                var availableTags = [];
-                $( "#tags" ).autocomplete({
-                  source: availableTags
-                });
-        } );
-        </script>
 
     </head>
 
     <body class="u-body">
+
+        <script>
+            $( function () {
+
+                $( "#tags" ).autocomplete({
+                    source: function( request, response ) {
+                                var term = String(request.term);
+                                $.get('{{ url_for("autocomplete_director") }}', function(results) {
+                                    results = $.ui.autocomplete.filter(results, request.term);
+                                    response(results.slice(0, 10));
+                            });
+                    },
+                    minLength:2
+                });
+            });
+        </script>
+
         <h2 class="u-text u-text-body-alt-color u-text-2"> Films query!!</h2>
         <form action="/query7" method="GET">
             <span class="u-text u-text-body-alt-color u-text-2">this query does that:</span>

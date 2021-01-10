@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response, url_for
 import mysql.connector
+import json
 #import mySqlQueries
 
 
@@ -284,6 +285,22 @@ def run_query_11(input):
     result.extend(cur.fetchall())
 
     return render_template('searchResults.html', data=result)
+
+
+## autocomplete for directors
+@app.route('/autocomplete_director', methods=['GET'])
+def autocomplete_director():
+    cur = mysql.cursor()
+
+    mysql_query = """SELECT d.fullName
+                      FROM Director d;
+                    """
+
+    cur.execute(mysql_query,)
+
+    all_directors = [record[0] for record in cur.fetchall()]
+
+    return Response(json.dumps(all_directors), mimetype='application/json')
 
 
 ### call querys functions ###

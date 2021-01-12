@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response, url_for
 import mysql.connector
+import json
 #import mySqlQueries
 
 
@@ -18,6 +19,8 @@ mysql = mysql.connector.connect(
     database="DbMysql11",
     port="3305"
 )
+
+
 
 
 # when we run server on the nova: delta-tomcat-vm
@@ -136,7 +139,7 @@ FROM {input} as a, Genre as g,Film_{input} as fa, Film_Genre as fg \
 Where a.id =fa.{input}_id and g.id = fg.Genre_id and fa.Film_id = fg.Film_id \
 Group BY a.fullname,g.fullName \
 ORDER BY count DESC \
-LIMIT 20"
+LIMIT 20;"
 
     cur.execute(mysql_query)
     result.extend(cur.fetchall())
@@ -148,16 +151,16 @@ LIMIT 20"
 def run_query_5(input):
     cur = mysql.cursor()
 
-    mysql_query = f"SELECT a.fullName as Actors\
-                  FROM Director d, Actors a, Film f, Film_Director fd, Film_Actors fa\
-                  WHERE MATCH(d.fullName) AGAINST({input}) and\
-                  f.id = fa.Film_id and\
-                  f.id = fd.Film_id and\
-                  d.id = fd.Director_id and\
-                  a.id = fa.Actor_id\
-                  LIMIT 100;"
+    mysql_query = """SELECT d.fullName, a.fullName as Actors
+                  FROM Director d, Actor a, Film f, Film_Director fd, Film_Actor fa
+                  WHERE MATCH(d.fullName) AGAINST("%s") and
+                  f.id = fa.Film_id and
+                  f.id = fd.Film_id and
+                  d.id = fd.Director_id and
+                  a.id = fa.Actor_id
+                  LIMIT 100;"""
 
-    cur.execute(mysql_query)
+    cur.execute(mysql_query, (input,))
     result = cur.fetchall()
 
     return render_template('searchResults.html', data=result)
@@ -167,15 +170,15 @@ def run_query_5(input):
 def run_query_6(input):
     cur = mysql.cursor()
 
-    mysql_query = f"SELECT f.Title, f.Rating\
-                  FROM Director d, Film f, Film_Director fd\
-                  WHERE f.id = fd.Film_id AND\
-	              d.id = fd.Director_id AND\
-                  MATCH(d.fullName) AGAINST({input})\
-                  ORDER BY f.Rating DESC\
-                  LIMIT 100;"
+    mysql_query = """SELECT d.fullName, f.Title, f.Rating
+                  FROM Director d, Film f, Film_Director fd
+                  WHERE f.id = fd.Film_id AND
+	              d.id = fd.Director_id AND
+                  MATCH(d.fullName) AGAINST("%s")
+                  ORDER BY f.Rating DESC
+                  LIMIT 100;"""
 
-    cur.execute(mysql_query)
+    cur.execute(mysql_query, (input,))
     result = cur.fetchall()
 
     return render_template('searchResults.html', data=result)
@@ -185,20 +188,24 @@ def run_query_6(input):
 def run_query_7(input):
     cur = mysql.cursor()
 
-    mysql_query = f"CREATE VIEW IF NOT EXISTS Director_And_Num_Films_{input} AS\
-                SELECT d2.id, d2.fullName, COUNT(f.id) AS num_of_films\
-                FROM Director d2, Film f, Film_Director fd, Genre g, Film_Genre fg\
-                WHERE d2.id = fd.Director_id AND\
-	            f.id = fd.Film_id AND\
-	            f.id = fg.Film_id AND\
-	            g.id = fg.Genre_id AND\
-	            g.fullName = {input}\
-                GROUP BY d2.id, d2.fullName;\
-                SELECT Director_And_Num_Films.fullName\
-                FROM Director_And_Num_Films\
-                WHERE Director_And_Num_Films.num_of_films > 10\
-                ORDER BY Director_And_Num_Films.num_of_films DESC\
-                LIMIT 100;"
+    view_query = f"CREATE VIEW Director_And_Num_Films_{input} AS\
+                    SELECT d2.id, d2.fullName, COUNT(f.id) AS num_of_films\
+                    FROM Director d2, Film f, Film_Director fd, Genre g, Film_Genre fg\
+                    WHERE d2.id = fd.Director_id AND\
+    	            f.id = fd.Film_id AND\
+    	            f.id = fg.Film_id AND\
+    	            g.id = fg.Genre_id AND\
+    	            g.fullName = '{input}'\
+                    GROUP BY d2.id, d2.fullName;"
+
+    cur.execute(view_query)
+
+    mysql_query = """
+                    SELECT Director_And_Num_Films.fullName
+                    FROM Director_And_Num_Films
+                    WHERE Director_And_Num_Films.num_of_films > 5
+                    ORDER BY Director_And_Num_Films.num_of_films DESC
+                    LIMIT 100;"""
 
     cur.execute(mysql_query)
     result = cur.fetchall()
@@ -209,23 +216,22 @@ def run_query_7(input):
 def run_query_8(input):
     cur = mysql.cursor()
 
-    mysql_query = f"CREATE OR REPLACE VIEW films_rating AS\
-                SELECT f.id, f.Rating\
-                FROM Film f, Genre g, Film_Genre fg\
-                WHERE f.id = fg.Film_id and\
-                fg.Genre_id = g.id and\
-                g.fullName = {input[0]} and\
-                f.Rating > {input[1]}\
-                ORDER BY f.Rating DESC;\
-                SELECT w.fullName, COUNT(fr.id) AS num_best_films\
-                FROM Writer w, films_rating fr, Film_Writer fw\
-                WHERE w.id = fw.Writer_id and\
-                fr.id = fw.Film_id\
-                GROUP BY w.id, w.fullName\
-                ORDER BY num_best_films DESC\
-                LIMIT 100;"
+    mysql_query = """SELECT w.fullName, COUNT(films_rating.id) AS num_best_films
+                FROM Writer w, (SELECT f.id, f.Rating
+                                FROM Film f, Genre g, Film_Genre fg
+                                WHERE f.id = fg.Film_id and
+                                fg.Genre_id = g.id and
+                                f.Rating >= %s and 
+                                g.fullName = %s
+                                ORDER BY f.Rating DESC) AS films_rating,
+                                Film_Writer fw
+                WHERE w.id = fw.Writer_id and
+                films_rating.id = fw.Film_id
+                GROUP BY w.id, w.fullName
+                ORDER BY num_best_films DESC
+                LIMIT 100;"""
 
-    cur.execute(mysql_query)
+    cur.execute(mysql_query, (input[0], input[1]))
     result = cur.fetchall()
 
     return render_template('searchResults.html', data=result)
@@ -279,6 +285,40 @@ def run_query_11(input):
     return render_template('searchResults.html', data=result)
 
 
+@app.route('/get_genres', methods=['GET'])
+def genres_dropdown():
+    cur = mysql.cursor()
+
+    mysql_query = """SELECT g.fullName
+                      FROM Genre g
+                        """
+
+    cur.execute(mysql_query)
+
+    all_genres = [record[0] for record in cur.fetchall()]
+
+    return Response(json.dumps(all_genres), mimetype='application/json')
+
+
+# autocomplete for directors
+@app.route('/autocomplete_director/search_term/<search>', methods=['GET'])
+def autocomplete_director(search):
+    cur = mysql.cursor()
+
+    search = "%" + search + "%"
+
+    mysql_query = """SELECT d.fullName
+                      FROM Director d
+                      WHERE d.fullName LIKE %s;
+                    """
+
+    cur.execute(mysql_query, (search, ))
+
+    all_directors = [record[0] for record in cur.fetchall()]
+
+    return Response(json.dumps(all_directors), mimetype='application/json')
+
+
 ### call querys functions ###
 
 @app.route('/query0')
@@ -319,25 +359,34 @@ def query_4_dir():
 @app.route('/query5')
 def query_5():
     input = request.args.get('query')
+    if input is None:
+        return render_template('searchResults.html', data=[])
     return run_query_5(input)
 
 
 @app.route('/query6')
 def query_6():
     input = request.args.get('query')
+    if input is None:
+        return render_template('searchResults.html', data=[])
     return run_query_6(input)
 
 
 @app.route('/query7')
 def query_7():
     input = request.args.get('query')
+    if input is None:
+        return render_template('searchResults.html', data=[])
     return run_query_7(input)
 
 @app.route('/query8')
 def query_8():
     input = request.args.get('query')
-    input_arr = input.split(',')
-    input_arr = [s.strip() for s in input_arr]
+    input2 = request.args.get('query2')
+    print("query 8, input1 = ", input, "input2 = ", input2)
+    if input is None:
+        return render_template('searchResults.html', data=[])
+    input_arr = [input, input2]
     return run_query_8(input_arr)
 
 

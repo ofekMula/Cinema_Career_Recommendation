@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 # DB tables' names apart from Film
-Tables = ["Actors", "Director", "Writer", "Production", "Genre"]
+Tables = ["Actor", "Director", "Writer", "Production", "Genre"]
 # foreign keys for intermediate tables
 id_keys = ["Actor_id", "Director_id", "Writer_id", "Production_id", "Genre_id"]
 # attributes for main table apart from Film

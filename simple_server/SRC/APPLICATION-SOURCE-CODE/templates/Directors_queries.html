@@ -5,18 +5,40 @@
         <link rel="stylesheet" href="../static/nicepage.css">
     </header>
     <head>
-            <style>
+        <style>
             body {
               background-image: url("../static/images/directors.jpg");
               background-repeat: no-repeat;
               background-size: cover;
             }
         </style>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     </head>
 
     <body class="u-body">
+
+        <script>
+            // script for genres dropdown.
+            $(function () {
+                $.get( "{{ url_for('genres_dropdown') }}", function( data ) {
+                    var s = "";
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i] + '">' + data[i] + '</option>';
+                       }
+                       $("#genresDropdown").html(s);
+                });
+            });
+        </script>
+
+
           <form action="/query4_Dir" method="GET">
-            <h6 class="u-text u-text-body-alt-color u-text-2">1. Get the top 20 directors  which worked<br>
+            <h6 class="u-text u-text-body-alt-color u-text-2">1. Get the top 20 directors who worked<br>
                 in a variety of genres:</h6>
             <input type="submit" value="search">
         </form><br>
@@ -27,7 +49,7 @@
             <span class="u-text u-text-body-alt-color u-text-2">Get 100 directors that directed more than 10 movies of a given genre</span>
             <br>
             <span class="u-text u-text-body-alt-color u-text-2"> Input genre:</span><br>
-            <input type="text" name="query" required>
+            <select name="query" class="form-control" id="genresDropdown" required></select>
             <input type="submit" value="search">
         </form><br>
 

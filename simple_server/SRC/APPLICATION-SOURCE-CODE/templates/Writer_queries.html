@@ -38,9 +38,10 @@
 
         <h2 class="u-text u-text-body-alt-color u-text-2"> Writers queries!!</h2>
         <form action="/query8" method="GET">
-            <h5 class="u-text u-text-body-alt-color u-text-2">Get This query 100 directors that directed more than 10 movies<br>
-                of rating above the inserted rating and of the inserted genre.<br>
-                Please enter the rating and a genre </h5>
+            <h5 class="u-text u-text-body-alt-color u-text-2">This query gets the 100 directors that<br> directed
+                more than 10 movies which rated <br>
+                above the inserted rating, and belongs <br> to the inserted genre.<br><br>
+                Please enter the rating and a genre: </h5>
             <select name="query" id="ratings" required>
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -52,7 +53,7 @@
                 <option value="8">8</option>
                 <option value="9">9</option>
                 <option value="10">10</option>
-            </select><br>
+            </select>
             <select name="query2" class="form-control" id="genresDropdown" required></select>
             <input type="submit" value="search">
         </form><br>

@@ -215,7 +215,8 @@ def run_query_7(input):
 
 def run_query_8(input):
     cur = mysql.cursor()
-
+    headers = ["full name", "count"]
+    result = [headers]
     mysql_query = """SELECT w.fullName, COUNT(films_rating.id) AS num_best_films
                 FROM Writer w, (SELECT f.id, f.Rating
                                 FROM Film f, Genre g, Film_Genre fg
@@ -232,8 +233,8 @@ def run_query_8(input):
                 LIMIT 100;"""
 
     cur.execute(mysql_query, (input[0], input[1]))
-    result = cur.fetchall()
 
+    result.extend(cur.fetchall())
     return render_template('searchResults.html', data=result)
 
 

@@ -188,22 +188,26 @@ def run_query_6(input):
 def run_query_7(input):
     cur = mysql.cursor()
 
-    mysql_query = f"CREATE VIEW IF NOT EXISTS Director_And_Num_Films_{input} AS\
-                SELECT d2.id, d2.fullName, COUNT(f.id) AS num_of_films\
-                FROM Director d2, Film f, Film_Director fd, Genre g, Film_Genre fg\
-                WHERE d2.id = fd.Director_id AND\
-	            f.id = fd.Film_id AND\
-	            f.id = fg.Film_id AND\
-	            g.id = fg.Genre_id AND\
-	            g.fullName = {input}\
-                GROUP BY d2.id, d2.fullName;\
-                SELECT Director_And_Num_Films.fullName\
-                FROM Director_And_Num_Films\
-                WHERE Director_And_Num_Films.num_of_films > 10\
-                ORDER BY Director_And_Num_Films.num_of_films DESC\
-                LIMIT 100;"
+    view_query = f"CREATE VIEW Director_And_Num_Films_{input} AS\
+                    SELECT d2.id, d2.fullName, COUNT(f.id) AS num_of_films\
+                    FROM Director d2, Film f, Film_Director fd, Genre g, Film_Genre fg\
+                    WHERE d2.id = fd.Director_id AND\
+    	            f.id = fd.Film_id AND\
+    	            f.id = fg.Film_id AND\
+    	            g.id = fg.Genre_id AND\
+    	            g.fullName = '{input}'\
+                    GROUP BY d2.id, d2.fullName;"
 
-    cur.execute(mysql_query, multi=True)
+    cur.execute(view_query)
+
+    mysql_query = """
+                    SELECT Director_And_Num_Films.fullName
+                    FROM Director_And_Num_Films
+                    WHERE Director_And_Num_Films.num_of_films > 5
+                    ORDER BY Director_And_Num_Films.num_of_films DESC
+                    LIMIT 100;"""
+
+    cur.execute(mysql_query)
     result = cur.fetchall()
 
     return render_template('searchResults.html', data=result)
@@ -212,28 +216,22 @@ def run_query_7(input):
 def run_query_8(input):
     cur = mysql.cursor()
 
-    view_query = """
-                DROP VIEW IF EXISTS [films_rating];
-                CREATE VIEW [films_rating] AS
-                SELECT f.id, f.Rating
-                FROM Film f, Genre g, Film_Genre fg
-                WHERE f.id = fg.Film_id and
-                fg.Genre_id = g.id and
-                g.fullName = "Drama" and
-                f.Rating > 0
-                ORDER BY f.Rating DESC;"""
-
-    cur.execute(view_query, multi=True)
-
-    mysql_query = """SELECT w.fullName, COUNT(fr.id) AS num_best_films
-                FROM Writer w, films_rating fr, Film_Writer fw
+    mysql_query = """SELECT w.fullName, COUNT(films_rating.id) AS num_best_films
+                FROM Writer w, (SELECT f.id, f.Rating
+                                FROM Film f, Genre g, Film_Genre fg
+                                WHERE f.id = fg.Film_id and
+                                fg.Genre_id = g.id and
+                                f.Rating >= %s and 
+                                g.fullName = %s
+                                ORDER BY f.Rating DESC) AS films_rating,
+                                Film_Writer fw
                 WHERE w.id = fw.Writer_id and
-                fr.id = fw.Film_id
+                films_rating.id = fw.Film_id
                 GROUP BY w.id, w.fullName
                 ORDER BY num_best_films DESC
                 LIMIT 100;"""
 
-    cur.execute(mysql_query)
+    cur.execute(mysql_query, (input[0], input[1]))
     result = cur.fetchall()
 
     return render_template('searchResults.html', data=result)
@@ -287,7 +285,22 @@ def run_query_11(input):
     return render_template('searchResults.html', data=result)
 
 
-## autocomplete for directors
+@app.route('/get_genres', methods=['GET'])
+def genres_dropdown():
+    cur = mysql.cursor()
+
+    mysql_query = """SELECT g.fullName
+                      FROM Genre g
+                        """
+
+    cur.execute(mysql_query)
+
+    all_genres = [record[0] for record in cur.fetchall()]
+
+    return Response(json.dumps(all_genres), mimetype='application/json')
+
+
+# autocomplete for directors
 @app.route('/autocomplete_director/search_term/<search>', methods=['GET'])
 def autocomplete_director(search):
     cur = mysql.cursor()
@@ -369,10 +382,11 @@ def query_7():
 @app.route('/query8')
 def query_8():
     input = request.args.get('query')
+    input2 = request.args.get('query2')
+    print("query 8, input1 = ", input, "input2 = ", input2)
     if input is None:
         return render_template('searchResults.html', data=[])
-    input_arr = input.split(',')
-    input_arr = [s.strip() for s in input_arr]
+    input_arr = [input, input2]
     return run_query_8(input_arr)
 
 

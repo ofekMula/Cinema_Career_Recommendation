@@ -12,15 +12,48 @@
               background-size: cover;
             }
         </style>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     </head>
 
     <body class="u-body">
-        <h2 class="u-text u-text-body-alt-color u-text-2"> Writres queries!!</h2>
+
+        <script>
+            // script for genres dropdown.
+            $(function () {
+                $.get( "{{ url_for('genres_dropdown') }}", function( data ) {
+                    var s = "";
+                        for (var i = 0; i < data.length; i++) {
+                            s += '<option value="' + data[i] + '">' + data[i] + '</option>';
+                       }
+                       $("#genresDropdown").html(s);
+                });
+            });
+        </script>
+
+        <h2 class="u-text u-text-body-alt-color u-text-2"> Writers queries!!</h2>
         <form action="/query8" method="GET">
             <h5 class="u-text u-text-body-alt-color u-text-2">Get This query 100 directors that directed more than 10 movies<br>
                 of rating above the inserted rating and of the inserted genre.<br>
                 Please enter a genre and rating (float):</h5>
-            <input type="text" name="query" required>
+            <select name="query" id="ratings" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select><br>
+            <select name="query2" class="form-control" id="genresDropdown" required></select>
             <input type="submit" value="search">
         </form><br>
     </body>

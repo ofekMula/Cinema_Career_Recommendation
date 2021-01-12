@@ -1,27 +1,91 @@
-<html>
-<head>
-    <style>
-            body {
-              background-image: url("../static/images/search1.jpg");
-              background-repeat: no-repeat;
-              background-size: cover;
-            }
-    </style>
-</head>
-<body>
-<h1> Your Query Results:<br></h1>
-    <table border="1" cellpadding="5" cellspacing="5">
-{% for row in data %}
-    <tr>
-    {% for d in row %}
-        <td>{{ d }}</td>
-    {% endfor %}
-    </tr>
-{% endfor %}
-</table><br>
-    <form action="/backToCover" method="GET">
-            <input type="submit" value="back to cover page">
-    </form><br>
-</body>
 
+<!DOCTYPE html>
+<html style="font-size: 16px;">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="Alignment. Growth. Relevance.">
+    <meta name="description" content="">
+    <meta name="page_type" content="np-template-header-footer-from-plugin">
+    <title>cover</title>
+    <link rel="stylesheet" href="../static/search2.css" media="screen">
+<link rel="stylesheet" href="../static/search.css" media="screen">
+    <script class="u-script" type="text/javascript" src="jquery-1.9.1.min.js" defer=""></script>
+    <meta name="generator" content="Nicepage 3.3.6, nicepage.com">
+    <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i">
+
+
+
+    <script type="application/ld+json">{
+		"@context": "http://schema.org",
+		"@type": "Organization",
+		"name": "",
+		"url": "index.html"
+}</script>
+    <meta property="og:title" content="cover">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#776dce">
+    <link rel="canonical" href="search_template.html">
+    <meta property="og:url" content="search_template.html">
+  </head>
+  <body class="u-body">
+    <section class="u-clearfix u-palette-3-dark-3 u-valign-middle u-section-2" id="carousel_1a04">
+
+      <div class="u-clearfix u-layout-wrap u-layout-wrap-1">
+        <div class="u-gutter-0 u-layout">
+          <div class="u-layout-row">
+            <div class="u-size-17">
+              <div class="u-layout-col">
+                <div class="u-container-style u-hidden-sm u-hidden-xs u-image u-layout-cell u-left-cell u-size-60 u-image-1" data-image-width="1280" data-image-height="853">
+                  <div class="u-container-layout u-container-layout-1"></div>
+                </div>
+              </div>
+            </div>
+            <div class="u-size-43">
+              <div class="u-layout-col">
+                <div class="u-align-left u-border-no-bottom u-border-no-left u-border-no-right u-border-no-top u-container-style u-layout-cell u-right-cell u-size-60 u-white u-layout-cell-2">
+                  <div class="u-container-layout u-valign-bottom u-container-layout-2">
+                    <h2 class="u-text u-text-1">Your Query&nbsp;Results:</h2>
+                    <div class="u-expanded-width u-table u-table-responsive u-table-1">
+                      <table class="u-table-entity">
+                        <colgroup>
+                          <col width="25%">
+                          <col width="25%">
+                          <col width="25%">
+                          <col width="25%">
+                        </colgroup>
+                        <tbody class="u-table-body">
+                          {% for row in data %}
+                          <tr style="height: 47px;">
+                          {% for d in row %}
+                              <td class="u-table-cell u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-table-cell ">{{ d }}</td>
+                          {% endfor %}
+                          </tr>
+                      {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <a href="index" class="u-black u-btn u-btn-round u-button-style u-hover-grey-50 u-radius-50 u-btn-1">back to cover page</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <section class="u-backlink u-clearfix u-grey-80">
+      <a class="u-link" href="https://nicepage.com/website-templates" target="_blank">
+        <span>Website Templates</span>
+      </a>
+      <p class="u-text">
+      </p>
+      <a class="u-link" href="https://nicepage.com/" target="_blank">
+      </a>.
+    </section>
+  </body>
 </html>

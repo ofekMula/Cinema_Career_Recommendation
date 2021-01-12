@@ -35,23 +35,16 @@
                                     response(results.slice(0, 10));
                             });
                     },
-                    minLength:2
+                    minLength:1
                 });
             });
         </script>
 
         <h2 class="u-text u-text-body-alt-color u-text-2"> Films query!!</h2>
-        <form action="/query7" method="GET">
-            <span class="u-text u-text-body-alt-color u-text-2">this query does that:</span>
-            <br>
-            <span class="u-text u-text-body-alt-color u-text-2"> this line explains how to use the query</span><br>
-            <input type="text" name="query" required>
-            <input type="submit" value="search">
-        </form><br>
 
 
         <form action="/query11" method="GET">
-            <h5 class="u-text u-text-body-alt-color u-text-2">2. Search for the highest rated movies from <br> a given decade:</h5>
+            <h5 class="u-text u-text-body-alt-color u-text-2">Search for the highest rated movies from <br> a given decade:</h5>
             <label class="u-text u-text-body-alt-color u-text-2" for="years">Please select a decade to begin with: </label>
             <select name="query" id="years">
                 <option value="1960">1960s</option>
@@ -69,14 +62,14 @@
         </form><br>
 
 
-        <form action="/query0" method="GET">
-            <span class="u-text u-text-body-alt-color u-text-2"> finds how many films created in a given country </span>
-            <br>
-            <span class="u-text u-text-body-alt-color u-text-2"> type a name of  country, 'usa' for example </span><br>
+<!--        <form action="/query0" method="GET">-->
+<!--            <span class="u-text u-text-body-alt-color u-text-2"> finds how many films created in a given country </span>-->
+<!--            <br>-->
+<!--            <span class="u-text u-text-body-alt-color u-text-2"> type a name of  country, 'usa' for example </span><br>-->
 
-            <input type="text" name="query" required>
-            <input type="submit" value="search">
-        </form><br>
+<!--            <input type="text" name="query" required>-->
+<!--            <input type="submit" value="search">-->
+<!--        </form><br>-->
 
 
         <form action="/query6" method="GET">
@@ -86,9 +79,9 @@
 
             <div class="ui-widget">
                 <input type="text" id="tags" name="query" required>
-            </div>
 
-            <input type="submit" value="search">
+            </div>
+                <input type="submit" value="search">
         </form><br>
 
 

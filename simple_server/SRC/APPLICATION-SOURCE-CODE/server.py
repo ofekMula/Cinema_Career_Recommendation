@@ -288,15 +288,18 @@ def run_query_11(input):
 
 
 ## autocomplete for directors
-@app.route('/autocomplete_director', methods=['GET'])
-def autocomplete_director():
+@app.route('/autocomplete_director/search_term/<search>', methods=['GET'])
+def autocomplete_director(search):
     cur = mysql.cursor()
 
+    search = "%" + search + "%"
+
     mysql_query = """SELECT d.fullName
-                      FROM Director d;
+                      FROM Director d
+                      WHERE d.fullName LIKE %s;
                     """
 
-    cur.execute(mysql_query,)
+    cur.execute(mysql_query, (search, ))
 
     all_directors = [record[0] for record in cur.fetchall()]
 

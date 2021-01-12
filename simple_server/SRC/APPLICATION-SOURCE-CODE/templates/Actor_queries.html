@@ -28,8 +28,10 @@
 
                 $( "#tags" ).autocomplete({
                     source: function( request, response ) {
-                                $.get('{{ url_for("autocomplete_director") }}', function(results) {
-                                    results = $.ui.autocomplete.filter(results, request.term);
+                                let term = String(request.term);
+                                let url_to_get = '/autocomplete_director/search_term/' + term;
+                                $.get(url_to_get, function(results) {
+                                    // results = $.ui.autocomplete.filter(results, request.term);
                                     response(results.slice(0, 10));
                             });
                     },

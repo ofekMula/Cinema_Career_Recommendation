@@ -12,9 +12,32 @@
               background-size: cover;
             }
         </style>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     </head>
 
     <body class="u-body">
+
+    <script>
+            $( function () {
+
+                $( "#tags" ).autocomplete({
+                    source: function( request, response ) {
+                                $.get('{{ url_for("autocomplete_director") }}', function(results) {
+                                    results = $.ui.autocomplete.filter(results, request.term);
+                                    response(results.slice(0, 10));
+                            });
+                    },
+                    minLength:2
+                });
+            });
+        </script>
+
         <h2 class="u-text u-text-body-alt-color u-text-2"> Actors query!!</h2>
         <form action="/query4" method="GET">
             <h6 class="u-text u-text-body-alt-color u-text-2">1. Get the top 20 actors which played<br>
@@ -27,7 +50,9 @@
         <form action="/query5" method="GET">
             <h6 class="u-text u-text-body-alt-color u-text-2">Get 100 actors which worked with the given director<br>
                 Please enter a director name:</h6>
-            <input type="text" name="query" required>
+            <div class="ui-widget">
+                <input type="text" id="tags" name="query" required>
+            </div>
             <input type="submit" value="search">
         </form><br>
 

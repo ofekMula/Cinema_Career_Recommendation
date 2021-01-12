@@ -28,7 +28,6 @@
 
                 $( "#tags" ).autocomplete({
                     source: function( request, response ) {
-                                var term = String(request.term);
                                 $.get('{{ url_for("autocomplete_director") }}', function(results) {
                                     results = $.ui.autocomplete.filter(results, request.term);
                                     response(results.slice(0, 10));
@@ -83,7 +82,7 @@
             <span class="u-text u-text-body-alt-color u-text-2"> Insert a director name:</span><br>
 
             <div class="ui-widget">
-                <input id="tags" name="query" required>
+                <input type="text" id="tags" name="query" required>
             </div>
 
             <input type="submit" value="search">

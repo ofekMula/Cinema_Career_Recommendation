@@ -87,7 +87,7 @@ def run_query_0(input):
     cur.execute(mysql_query)
     ft = cur.fetchall()
     print(ft)
-    if ft[0][0] == None:
+    if ft[0][0] is None:
         ft[0] = (0,)
     result.extend(ft)
     return render_template('searchResults.html', data=result)
@@ -151,6 +151,13 @@ LIMIT 20;"
 def run_query_5(input):
     cur = mysql.cursor()
 
+    headers = ("director", "actor")
+    result = [headers]
+
+    if not check_if_letters(input):
+        result.append(("0 results", ""))
+        return render_template('searchResults.html', data=result)
+
     mysql_query = """SELECT d.fullName, a.fullName as Actors
                   FROM Director d, Actor a, Film f, Film_Director fd, Film_Actor fa
                   WHERE MATCH(d.fullName) AGAINST("%s") and
@@ -161,7 +168,13 @@ def run_query_5(input):
                   LIMIT 100;"""
 
     cur.execute(mysql_query, (input,))
-    result = cur.fetchall()
+
+    ft = cur.fetchall()
+
+    if len(ft) == 0:
+        ft.append(("0 results", ""))
+
+    result.extend(ft)
 
     return render_template('searchResults.html', data=result)
 
@@ -169,6 +182,13 @@ def run_query_5(input):
 
 def run_query_6(input):
     cur = mysql.cursor()
+
+    headers = ("director", "film", "rating")
+    result = [headers]
+
+    if not check_if_letters(input):
+        result.append(("0 results", "", ""))
+        return render_template('searchResults.html', data=result)
 
     mysql_query = """SELECT d.fullName, f.Title, f.Rating
                   FROM Director d, Film f, Film_Director fd
@@ -179,44 +199,60 @@ def run_query_6(input):
                   LIMIT 100;"""
 
     cur.execute(mysql_query, (input,))
-    result = cur.fetchall()
+
+    ft = cur.fetchall()
+
+    if len(ft) == 0:
+        ft.append(("0 results", "", ""))
+
+    result.extend(ft)
 
     return render_template('searchResults.html', data=result)
-
 
 
 def run_query_7(input):
     cur = mysql.cursor()
 
-    view_query = f"CREATE VIEW Director_And_Num_Films_{input} AS\
-                    SELECT d2.id, d2.fullName, COUNT(f.id) AS num_of_films\
-                    FROM Director d2, Film f, Film_Director fd, Genre g, Film_Genre fg\
-                    WHERE d2.id = fd.Director_id AND\
-    	            f.id = fd.Film_id AND\
-    	            f.id = fg.Film_id AND\
-    	            g.id = fg.Genre_id AND\
-    	            g.fullName = '{input}'\
-                    GROUP BY d2.id, d2.fullName;"
-
-    cur.execute(view_query)
+    headers = ("director",)
+    result = [headers]
+    #
+    # view_query = f"CREATE VIEW Director_And_Num_Films_{input} AS\
+    #                 ;"
+    #
+    # cur.execute(view_query)
 
     mysql_query = """
                     SELECT Director_And_Num_Films.fullName
-                    FROM Director_And_Num_Films
+                    FROM    (SELECT d2.id AS id, d2.fullName AS fullName, COUNT(f.id) AS num_of_films
+                            FROM Director d2, Film f, Film_Director fd, Genre g, Film_Genre fg
+                            WHERE d2.id = fd.Director_id AND
+                            f.id = fd.Film_id AND
+                            f.id = fg.Film_id AND
+                            g.id = fg.Genre_id AND
+                            g.fullName = %s
+                            GROUP BY d2.id, d2.fullName)
+                            AS Director_And_Num_Films
                     WHERE Director_And_Num_Films.num_of_films > 5
                     ORDER BY Director_And_Num_Films.num_of_films DESC
                     LIMIT 100;"""
 
-    cur.execute(mysql_query)
-    result = cur.fetchall()
+    cur.execute(mysql_query, (input,))
+
+    ft = cur.fetchall()
+
+    if len(ft) == 0:
+        ft.append(("0 results",))
+
+    result.extend(ft)
 
     return render_template('searchResults.html', data=result)
 
 
 def run_query_8(input):
     cur = mysql.cursor()
-    headers = ["full name", "count"]
+    headers = ("full name", "count")
     result = [headers]
+
     mysql_query = """SELECT w.fullName, COUNT(films_rating.id) AS num_best_films
                 FROM Writer w, (SELECT f.id, f.Rating
                                 FROM Film f, Genre g, Film_Genre fg
@@ -234,7 +270,12 @@ def run_query_8(input):
 
     cur.execute(mysql_query, (input[0], input[1]))
 
-    result.extend(cur.fetchall())
+    ft = cur.fetchall()
+
+    if len(ft) == 0:
+        ft.append(("0 results", ""))
+
+    result.extend(ft)
     return render_template('searchResults.html', data=result)
 
 
@@ -303,9 +344,27 @@ def genres_dropdown():
     return Response(json.dumps(all_genres), mimetype='application/json')
 
 
+def check_if_letters(string):
+    """
+    :param string: string to check
+    :return: true iff string consists of only letters or whitespaces.
+    """
+    words = string.split()
+
+    for word in words:
+        if not str.isalpha(word):
+            return False
+
+    return True
+
+
 # autocomplete for directors
 @app.route('/autocomplete_director/search_term/<search>', methods=['GET'])
 def autocomplete_director(search):
+
+    if not check_if_letters(search):
+        Response(json.dumps([]), mimetype='application/json')
+
     cur = mysql.cursor()
 
     search = "%" + search + "%"

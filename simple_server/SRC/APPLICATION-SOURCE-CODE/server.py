@@ -131,7 +131,7 @@ def run_query_3(input):
 
 def run_query_4(input):
     cur = mysql.cursor()
-    headers = ["amount", "number of genres"]
+    headers = ["Actor's name", "number of genres"]
     result = [headers]
 
     mysql_query = f"SELECT  DISTINCT a.fullName as name,count(g.fullName) as count \
@@ -240,7 +240,8 @@ def run_query_8(input):
 
 def run_query_9():
     cur = mysql.cursor()
-
+    headers = ["Genre"," Avrage Ranking"]
+    result = [headers]
     mysql_query = f"SELECT  g.fullName as genre_name ,AVG(f.Rating) as Avg_rating \
                 FROM Film as f, Genre as g , Film_Genre as fg \
                 WHERE (f.id =fg.film_id) and  (fg. film_id=g.id) \
@@ -249,14 +250,15 @@ def run_query_9():
                 LIMIT 10"
 
     cur.execute(mysql_query)
-    result = cur.fetchall()
+    result.extend(cur.fetchall())
 
     return render_template('searchResults.html', data=result)
 
 
 def run_query_10():
     cur = mysql.cursor()
-
+    headers = ["Genre", " Number of Films in Genre with rating above 8"]
+    result = [headers]
     mysql_query = f"SELECT  g.fullName, count(f.id) as film_amount\
                 FROM Film as f, Genre as g , Film_Genre as fg \
                 where (f.id=fg.film_id) and  (fg.Genre_id=g.id) and f.rating>=8 \
@@ -264,7 +266,7 @@ def run_query_10():
                 ORDER BY film_amount DESC"
 
     cur.execute(mysql_query)
-    result = cur.fetchall()
+    result.extend(cur.fetchall())
 
     return render_template('searchResults.html', data=result)
 

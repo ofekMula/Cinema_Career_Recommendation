@@ -40,11 +40,11 @@
             });
         </script>
 
-        <h2 class="u-text u-text-body-alt-color u-text-2"> Films query!!</h2>
+        <h2 class="u-text u-text-body-alt-color u-text-2"> Films Queries</h2>
 
 
         <form action="/query11" method="GET">
-            <h5 class="u-text u-text-body-alt-color u-text-2">Search for the highest rated movies from <br> a given decade:</h5>
+            <h5 class="u-text u-text-body-alt-color u-text-2"> 1) Search for the highest rated movies from <br> a given decade:</h5>
             <label class="u-text u-text-body-alt-color u-text-2" for="years">Please select a decade to begin with: </label>
             <select name="query" id="years">
                 <option value="1960">1960s</option>
@@ -54,7 +54,7 @@
                 <option value="2000">2000s</option>
                 <option value="2010">2010s</option>
                 <option value="2020">2020s</option>
-            </select><br>
+            </select>
             <input type="submit" value="search">
 
 
@@ -73,15 +73,15 @@
 
 
         <form action="/query6" method="GET">
-            <span class="u-text u-text-body-alt-color u-text-2">Get top 100 films (by movie rating) for a given director:</span>
-            <br>
+            <h5 class="u-text u-text-body-alt-color u-text-2">2) Get top 100 films (by movie rating) for a given director:</h5>
+
             <span class="u-text u-text-body-alt-color u-text-2"> Insert a director name:</span><br>
 
             <div class="ui-widget">
                 <input type="text" id="tags" name="query" required>
 
-            </div>
                 <input type="submit" value="search">
+            </div>
         </form><br>
 
 

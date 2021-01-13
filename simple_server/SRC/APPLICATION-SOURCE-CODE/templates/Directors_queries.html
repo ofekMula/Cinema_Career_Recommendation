@@ -20,10 +20,11 @@
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     </head>
+    <h2 class="u-text u-text-body-alt-color u-text-2"> Directors Queries</h2>
 
     <body class="u-body">
 
-        <script>
+    <script>
             // script for genres dropdown.
             $(function () {
                 $.get( "{{ url_for('genres_dropdown') }}", function( data ) {
@@ -37,18 +38,16 @@
         </script>
 
 
-          <form action="/query4_Dir" method="GET">
-            <h6 class="u-text u-text-body-alt-color u-text-2">1. Get the top 20 directors who worked<br>
-                in a variety of genres:</h6>
-            <input type="submit" value="search">
-        </form><br>
+        <form action="/query4_Dir" method="GET">
+              <h5 class="u-text u-text-body-alt-color u-text-2">1) Get the top 20 directors who worked<br>
+                in a variety of genres:</h5>
+              <input type="submit" value="search">
+          </form><br>
 
 
-        <h2 class="u-text u-text-body-alt-color u-text-2"> Directors query!!</h2>
         <form action="/query7" method="GET">
-            <span class="u-text u-text-body-alt-color u-text-2">Get 100 directors that directed more than 10 movies of a given genre</span>
-            <br>
-            <span class="u-text u-text-body-alt-color u-text-2"> Input genre:</span><br>
+            <h5 class="u-text u-text-body-alt-color u-text-2">2) Get 100 directors that directed more than 10 movies of a given genre</h5>
+                      <span class="u-text u-text-body-alt-color u-text-2"> Choose genre:</span><br>
             <select name="query" class="form-control" id="genresDropdown" required></select>
             <input type="submit" value="search">
         </form><br>

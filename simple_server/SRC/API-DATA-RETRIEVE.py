@@ -1,14 +1,3 @@
-# connection  to server details
-
-# my_sql_connector
-
-# definitions on how to insert different data to DB
-
-# retrieve data from API
-
-# insert data to DB//
-
-
 import requests
 import pathlib
 import json
@@ -22,3 +11,29 @@ def getDatabyId(id):
         'x-rapidapi-host': "movie-database-imdb-alternative.p.rapidapi.com"
         }
     response = requests.request("GET", url, headers=headers, params=querystring)
+    ###########################################################################
+    pathlib.Path(id+".json").write_bytes(response.content) ## SAVE FILE
+
+
+
+
+
+def loadId():
+    pathName = "2021 Movies.txt" ##set to file with IMDB's IDs
+    n = len(open(pathName).readlines(  ))
+    print(n)
+    with open(pathName) as file_in:
+
+        for i,line in enumerate(file_in):
+            if i>-1: ## used to load in batches
+                line = line.strip('\n')
+                getDatabyId(line)
+                if i%50==0:
+                    k =i/n*100
+                    print(format(k, ".2f"),"%")
+
+
+
+
+loadId()
+

@@ -24,7 +24,7 @@ mysql = mysql.connector.connect(
 
 
 # when we run server on the nova: delta-tomcat-vm
-
+#
 # mysql = mysql.connector.connect(
 #   host="mysqlsrv1.cs.tau.ac.il",
 #   user="DbMysql11",
@@ -475,5 +475,5 @@ def back():
 
 if __name__ == '__main__':
     app.run(port="8888", debug=True)
-    # app.run(port="40707", debug=True,host='delta-tomcat- - when running on delta tomcat server.
+    # app.run(port="40707", debug=True,host='delta-tomcat-vm') #- - when running on delta tomcat server.
 

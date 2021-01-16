@@ -325,7 +325,7 @@ def run_query_11(input):
                     Film as f,(SELECT distinct f.Year  ,MAX(f.Rating) as max_rating\
                     FROM Film as f WHERE f.Year>={input} AND f.Year<=2020 \
                     GROUP BY f.year) as max_per_year \
-                    WHERE f.Year =max_per_year.Year and f.Rating = max_per_year.max_rating"
+                    WHERE f.Year =max_per_year.Year and f.Rating = max_per_year.max_rating ORDER by year, Rating DESC"
 
     cur.execute(mysql_query)
     result.extend(cur.fetchall())

@@ -21,8 +21,8 @@
   margin: 123px 40px 0 auto;
 }
 
-.u-section-1 .u-btn-1 {
-  background-image: linear-gradient(#b89c8a, #8c786b);
+.u-section-1 .u-btn-11 {
+  background-image: linear-gradient(#1a0d05, #1a0d05);
   border-style: none;
   font-weight: 700;
   text-transform: uppercase;
@@ -86,7 +86,7 @@
     margin-right: 49px;
   }
 
-  .u-section-1 .u-btn-1 {
+  .u-section-1 .u-btn-11 {
     margin-left: 71px;
   }
 
@@ -125,7 +125,7 @@
     margin-right: 38px;
   }
 
-  .u-section-1 .u-btn-1 {
+  .u-section-1 .u-btn-11 {
     margin-left: 0;
   }
 

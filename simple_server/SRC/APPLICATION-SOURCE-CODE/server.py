@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response, url_for
+from flask import Flask, render_template, request, Response, url_for, redirect
 import mysql.connector
 import json
 #import mySqlQueries
@@ -360,6 +360,11 @@ def check_if_letters(string):
             return False
 
     return True
+
+
+@app.route('/jquery-1.9.1.min.js')
+def get_jquery():
+    return redirect("https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js", code=200)
 
 
 # autocomplete for directors

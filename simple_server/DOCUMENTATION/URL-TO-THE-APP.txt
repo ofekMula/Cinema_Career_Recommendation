@@ -1,1 +1,1 @@
-http://delta-tomcat-vm.cs.tau.ac.il:XXXXX
+http://delta-tomcat-vm.cs.tau.ac.il:40707

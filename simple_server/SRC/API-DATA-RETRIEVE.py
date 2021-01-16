@@ -4,6 +4,10 @@ import pathlib
 
 
 def getDatabyId(id):
+    ### Should subsribe to
+    # https: // rapidapi.com / rapidapi / api / movie - database - imdb - alternative
+    ## to register, even for free acount, a credit card is required
+
     url = "https://movie-database-imdb-alternative.p.rapidapi.com/"
     querystring = {"i": id, "r": "json"}
     headers = {
@@ -12,7 +16,7 @@ def getDatabyId(id):
     }
     response = requests.request("GET", url, headers=headers, params=querystring)
     ###########################################################################
-    pathlib.Path("./json" + id + ".json").write_bytes(response.content)  ## SAVE FILE
+    pathlib.Path("./jsons" + id + ".json").write_bytes(response.content)  ## SAVE FILE
 
 
 def loadId():
@@ -22,7 +26,7 @@ def loadId():
     with open(pathName) as file_in:
 
         for i, line in enumerate(file_in):
-            if i > -1:  ## used to load in batches
+            if i < 100:  ## above 1000 it COST MONEY
                 line = line.strip('\n')
                 getDatabyId(line)
                 if i % 50 == 0:
@@ -30,7 +34,7 @@ def loadId():
                     print(format(k, ".2f"), "%")
 
 
-os.mkdir("./jsons")
+os.mkdir("./jsons") ## /  signs are for linux
 loadId()
 
 with open('BreakJsonToAllTables.py') as infile:

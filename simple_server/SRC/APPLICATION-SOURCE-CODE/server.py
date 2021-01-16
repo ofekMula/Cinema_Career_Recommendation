@@ -76,17 +76,17 @@ def run_query_0(input):
     # cur.execute(mysql_query)
     input = str(input)
     input = input.lower()
-    print(input)
+
     headers = [f"number of films in {input} is: "]
     result = [headers]
-    print(headers)
+
     mysql_query = f"SELECT  sum(c.count)  as films_in_country FROM" \
                   f"( SELECT Country,COUNT(*) as count FROM Film  WHERE Country LIKE '%{input}%'" \
                   f"GROUP BY Country order by count desc) as c"
 
     cur.execute(mysql_query)
     ft = cur.fetchall()
-    print(ft)
+
     if ft[0][0] is None:
         ft[0] = (0,)
     result.extend(ft)
@@ -99,7 +99,7 @@ def run_query_1(input):
     headers = ["amount", input]
 
     result = [headers]
-    print(headers)
+
     mysql_query = f"SELECT  count(f.id) as film_amount , p.fullName FROM Film as f, {input} as p ," \
                   f" Film_{input} as fp where (f.id=fp.film_id) and  (fp.{input}_id=p.id) and f.rating>=7 " \
                   f"GROUP BY  p.fullName ORDER BY film_amount DESC LIMIT 20 "
@@ -157,17 +157,19 @@ def run_query_5(input):
     if not check_if_letters(input):
         result.append(("0 results", ""))
         return render_template('searchResults.html', data=result)
+    full_name_list = input.split()
+    input = " ".join(["+"+ word for word in full_name_list])
 
-    mysql_query = """SELECT d.fullName, a.fullName as Actors
-                  FROM Director d, Actor a, Film f, Film_Director fd, Film_Actor fa
-                  WHERE MATCH(d.fullName) AGAINST("%s") and
-                  f.id = fa.Film_id and
-                  f.id = fd.Film_id and
-                  d.id = fd.Director_id and
-                  a.id = fa.Actor_id
-                  LIMIT 100;"""
+    mysql_query = f"SELECT d.fullName, a.fullName as Actors \
+                  FROM Director d, Actor a, Film f, Film_Director fd, Film_Actor fa \
+                  WHERE MATCH(d.fullName) AGAINST('{input}' IN BOOLEAN MODE) and \
+                  f.id = fa.Film_id and \
+                  f.id = fd.Film_id and \
+                  d.id = fd.Director_id and \
+                  a.id = fa.Actor_id \
+                  LIMIT 100;"
 
-    cur.execute(mysql_query, (input,))
+    cur.execute(mysql_query)
 
     ft = cur.fetchall()
 
@@ -189,16 +191,18 @@ def run_query_6(input):
     if not check_if_letters(input):
         result.append(("0 results", "", ""))
         return render_template('searchResults.html', data=result)
+    full_name_list = input.split()
+    input = " ".join(["+" + word for word in full_name_list])
 
-    mysql_query = """SELECT d.fullName, f.Title, f.Rating
-                  FROM Director d, Film f, Film_Director fd
-                  WHERE f.id = fd.Film_id AND
-	              d.id = fd.Director_id AND
-                  MATCH(d.fullName) AGAINST("%s")
-                  ORDER BY f.Rating DESC
-                  LIMIT 100;"""
+    mysql_query = f"SELECT d.fullName, f.Title, f.Rating \
+                  FROM Director d, Film f, Film_Director fd \
+                  WHERE f.id = fd.Film_id AND \
+	              d.id = fd.Director_id AND \
+                  MATCH(d.fullName) AGAINST('{input}' IN BOOLEAN MODE) \
+                  ORDER BY f.Rating DESC \
+                  LIMIT 100;"
 
-    cur.execute(mysql_query, (input,))
+    cur.execute(mysql_query)
 
     ft = cur.fetchall()
 
@@ -445,7 +449,7 @@ def query_7():
 def query_8():
     input = request.args.get('query')
     input2 = request.args.get('query2')
-    print("query 8, input1 = ", input, "input2 = ", input2)
+
     if input is None:
         return render_template('searchResults.html', data=[])
     input_arr = [input, input2]

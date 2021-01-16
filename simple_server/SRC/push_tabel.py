@@ -8,19 +8,20 @@ using mysql connector we can connect to our mysql server and use queries to fetc
 
 # when we run server.py locally
 def push_csv_to_table(file_name, mysql_conn, cursor):
+
     """
-    :param file_name: a csv file name
-    :param mysql_conn: mysql connector, connected to the server
-    :param cursor: cursor, matching to mysql_conn
-    :return:
-    """
+:param file_name: a csv file name
+:param mysql_conn: mysql connector, connected to the server
+:param cursor: cursor, matching to mysql_conn
+:return:
+"""
     df = pd.read_csv(f"./jsons/{file_name}" + ".csv")
 
-    if file_name == "Film":
+    if file_name == "Film": ## ohter tables have the same Stracture
         df['Title'].fillna("No Title", inplace=True)
         df['Year'].fillna(-1, inplace=True)
         df['Runtime'].fillna("No Runtime", inplace=True)
-        df['Rating'].fillna(df['Rating'].mean(), inplace=True)
+        df['Rating'].fillna(df['Rating'].mean(), inplace=True) ##  take avrage rating for null values
         df['Language'].fillna("No Language", inplace=True)
         df['Country'].fillna("No Country", inplace=True)
 
@@ -29,7 +30,7 @@ def push_csv_to_table(file_name, mysql_conn, cursor):
 
     for i, row in df.iterrows():
         if file_name == "Film":
-            sql = f"INSERT IGNORE INTO {file_name} VALUES (%s,%s,%s,%s,%s,%s,%s)"
+            sql = f"INSERT IGNORE INTO {file_name} VALUES (%s,%s,%s,%s,%s,%s,%s)" ## prevet duplications
         else:
             sql = f"INSERT IGNORE INTO {file_name} VALUES (%s,%s)"
         cursor.execute(sql, tuple(row))

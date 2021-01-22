@@ -22,9 +22,8 @@ mysql = mysql.connector.connect(
 
 
 
-
-# when we run server on the nova: delta-tomcat-vm
-#
+# # when we run server on the nova: delta-tomcat-vm
+# #
 # mysql = mysql.connector.connect(
 #   host="mysqlsrv1.cs.tau.ac.il",
 #   user="DbMysql11",
@@ -32,10 +31,28 @@ mysql = mysql.connector.connect(
 #   database="DbMysql11",
 # )
 
+
+def db_open_connection():
+    global mysql
+    if not mysql.is_connected():
+        mysql.connect(
+        host="localhost",
+        user="DbMysql11",
+        password="DbMysql11",
+        database="DbMysql11",
+        port="3305")
+        # mysql.connect(
+        #   host="mysqlsrv1.cs.tau.ac.il",
+        #   user="DbMysql11",
+        #   password="DbMysql11",
+        #   database="DbMysql11",
+        # )
+
 #### PAGES ###
 @app.route('/')
 @app.route('/index')
 def index():
+    db_open_connection()
     return render_template('index.html')
 
 @app.route('/Film_queries.html')
@@ -60,6 +77,7 @@ def genre():
 
 @app.route('/Writer_queries.html')
 def writer():
+    db_open_connection()
     return render_template('Writer_queries.html')
 
 @app.route('/about_us.html')
@@ -71,6 +89,7 @@ def about_us():
 
 def run_query_0(input):
     ## find the number of films by the given input  cointry name
+    db_open_connection()
     cur = mysql.cursor()
     # mysql_query = f"DESCRIBE Film"
     # cur.execute(mysql_query)
@@ -95,6 +114,7 @@ def run_query_0(input):
 
 def run_query_1(input):
     ## find the 20 biggest  producer/genre, by the amount of films with rank above 7
+    db_open_connection()
     cur = mysql.cursor()
     headers = ["amount", input]
 
@@ -113,6 +133,7 @@ def run_query_2(input):
 
 
 def run_query_3(input):
+    db_open_connection()
     cur = mysql.cursor()
     headers = ["Genre", f"number of {input}s"]
     result = [headers]
@@ -130,6 +151,7 @@ def run_query_3(input):
     return render_template('searchResults.html', data=result)
 
 def run_query_4(input):
+    db_open_connection()
     cur = mysql.cursor()
     headers = ["Actor's name", "number of genres"]
     result = [headers]
@@ -149,6 +171,7 @@ LIMIT 20;"
 
 # This query returns 100 actors that worked with the required director.
 def run_query_5(input):
+    db_open_connection()
     cur = mysql.cursor()
 
     headers = ("director", "actor")
@@ -183,6 +206,7 @@ def run_query_5(input):
 
 
 def run_query_6(input):
+    db_open_connection()
     cur = mysql.cursor()
 
     headers = ("director", "film", "rating")
@@ -215,6 +239,7 @@ def run_query_6(input):
 
 
 def run_query_7(input):
+    db_open_connection()
     cur = mysql.cursor()
 
     headers = ("director",)
@@ -253,6 +278,7 @@ def run_query_7(input):
 
 
 def run_query_8(input):
+    db_open_connection()
     cur = mysql.cursor()
     headers = ("full name", "count")
     result = [headers]
@@ -284,6 +310,7 @@ def run_query_8(input):
 
 
 def run_query_9():
+    db_open_connection()
     cur = mysql.cursor()
     headers = ["Genre"," Avrage Ranking"]
     result = [headers]
@@ -301,6 +328,7 @@ def run_query_9():
 
 
 def run_query_10():
+    db_open_connection()
     cur = mysql.cursor()
     headers = ["Genre", " Number of Films in Genre with rating above 8"]
     result = [headers]
@@ -317,6 +345,7 @@ def run_query_10():
 
 
 def run_query_11(input):
+    db_open_connection()
     cur = mysql.cursor()
 
     headers = ["year","Title", "rating"]
@@ -484,5 +513,5 @@ def back():
 
 if __name__ == '__main__':
     app.run(port="8888", debug=True)
-    ## app.run(port="40707", debug=True,host='delta-tomcat-vm') #- - when running on delta tomcat server.
+    # app.run(port="40707", debug=True,host='delta-tomcat-vm') #- - when running on delta tomcat server.
 

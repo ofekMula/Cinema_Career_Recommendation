@@ -57,19 +57,22 @@ def index():
 
 @app.route('/Film_queries.html')
 def films():
+    db_open_connection()
     return render_template('Film_queries.html')
 
 @app.route('/Actor_queries.html')
 def actors():
+    db_open_connection()
     return render_template('Actor_queries.html')
 
 @app.route('/Directors_queries.html')
 def directors():
+    db_open_connection()
     return render_template('Directors_queries.html')
 @app.route('/Producer_queries.html')
 def producer():
+    db_open_connection()
     return render_template('Producer_queries.html')
-
 
 @app.route('/Genre_queries.html')
 def genre():
@@ -513,5 +516,5 @@ def back():
 
 if __name__ == '__main__':
     app.run(port="8888", debug=True)
-    # app.run(port="40707", debug=True,host='delta-tomcat-vm') #- - when running on delta tomcat server.
+     #app.run(port="40707", debug=True,host='delta-tomcat-vm') #- - when running on delta tomcat server.
 

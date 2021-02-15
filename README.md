@@ -1,5 +1,7 @@
 # Cinenema Career Recommendation
 
+![alt text](https://github.com/matanmula172/db_project/blob/main/%E2%80%8F%E2%80%8Fcover_page.JPG)
+
 ## Objective
 Design and implement a useful and interesting web application related to movies.
 Our site enables students in the beginning of their career as filmmakers to learn about the industry, in order to make more successful career choices.
